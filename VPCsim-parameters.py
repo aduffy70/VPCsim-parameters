@@ -34,7 +34,7 @@ import time
 
 class HtmlPage():
     """
-    Class containing basic html page layout.  #TODO- Either go all the way with this structure or just drop it
+    Class containing basic html page layout.
     """
     header = '<html><body>'
 
@@ -57,7 +57,7 @@ class LogOrParametersPage(webapp.RequestHandler):
         self.response.out.write(page.header)
         self.response.out.write(self.instructions)
         self.response.out.write(self.form)
-        self.response.out.write(self.workshop_link)
+        self.response.out.write(self.instructions_link)
         self.response.out.write(page.footer)
 
     instructions = """
@@ -67,8 +67,7 @@ class LogOrParametersPage(webapp.RequestHandler):
         From this page you can:
         <ul>
             <li>change the parameters controlling a virtual plant community,</li>
-            <li>change only the disturbance pattern, or </li>
-            <li>view data logged by the plant community.</li>
+            <li>  </li>
         </ul>
         <hr>
         """
@@ -77,17 +76,11 @@ class LogOrParametersPage(webapp.RequestHandler):
         <form enctype="multipart/form-data" action="/parametersform1" method="get">
            <input type="submit" value="Change all parameters" style="width: 175px">
         </form>
-        <form enctype="multipart/form-data" action="/selectmap" method="get">
-           <input type="submit" value="Change disturbance only" style="width: 175px">
-        </form>
-        <form enctype="multipart/form-data" action="/log" method="get">
-            <input type="submit" value="View log data" style="width: 175px">
-        </form>
         """
 
-    workshop_link = """
+    instructions_link = """
         <p>
-            <a href="/images/VPCsimWorkshop.pdf" target="_blank">PDF document for CyTSE/NSTA RDC workshop</a>
+            <a href="/images/VPCsimInstructions.pdf" target="_blank">Instructions</a>
         </p>
         """
 
@@ -98,73 +91,18 @@ class MeadowRecordObject(db.Model):
     # Timestamp id for this record
     id = db.StringProperty()
 
-    # CSV integers represeting the OpenMetaverse Tree types for each of the 5 species in the community
+    # CSV integers represeting the Unity3D Tree types for each of the 5 species in the community
     plant_types = db.StringProperty()
 
-    # CSV replacement probabilities for each species
-    replacement_1 = db.StringProperty()
-    replacement_2 = db.StringProperty()
-    replacement_3 = db.StringProperty()
-    replacement_4 = db.StringProperty()
-    replacement_5 = db.StringProperty()
-
-    #Lifespans for each species (S=short, M=mid, L=long)
-    lifespans = db.StringProperty()
-
-    #Altitude optimum for each species (L=low, M=mid, H=high)
-    altitude_optimums = db.StringProperty()
-
-    #Altitude effects for each species (N=None, L=Low, M=mid, H=high)
-    altitude_effects = db.StringProperty()
-
-    #Salinity optimum for each species (L=low, M=mid, H=high)
-    salinity_optimums = db.StringProperty()
-
-    #Salinity effects for each species (N=None, L=Low, M=mid, H=high)
-    salinity_effects = db.StringProperty()
-
-    #Drainage optimum for each species (L=low, M=mid, H=high)
-    drainage_optimums = db.StringProperty()
-
-    #Drainage effects for each species (N=None, L=Low, M=mid, H=high)
-    drainage_effects = db.StringProperty()
-
-    #Fertility optimum for each species (L=low, M=mid, H=high)
-    fertility_optimums = db.StringProperty()
-
-    #Fertility effects for each species (N=None, L=Low, M=mid, H=high)
-    fertility_effects = db.StringProperty()
-
-    #Whether to only change the disturbance settings
-    disturbance_only = db.IntegerProperty()
-
-    #Whether to display a natural vs crop-like community
-    natural = db.IntegerProperty()
-
-    #Terrain, salinity, drainage, and fertility maps to use for the region
+    #Terrain, water, light, temperature, and disturbance levels
     terrain = db.IntegerProperty()
-    salinity = db.IntegerProperty()
-    drainage = db.IntegerProperty()
-    fertility = db.IntegerProperty()
+    water_level = db.IntegerProperty()
+    light_level = db.IntegerProperty()
+    temperature_level = db.IntegerProperty()
+    disturbance_level = db.IntegerProperty()
 
     #Matrix representing the starting values for each position in the matrix (R=random, N=disturbance, 0=gap, 1-5=plant types)
     starting_matrix = db.TextProperty()
-
-    #Ongoing disturbance rate (random temporary disturbance each generation in addition to the permanent disturbance on the starting matrix) (N=none, L=low, M=mid, H=high)
-    ongoing_disturbance = db.StringProperty()
-
-    #TODO- These values are no longer adjustable but they are expected by the region module so we still include them here and provide the locked values when we create a record.  Update the region module to not require them and remove them completely here.
-    #XY dimensions of the community matrix
-    #currently locked at 50x50
-    x_size = db.IntegerProperty()
-    y_size = db.IntegerProperty()
-    #Region coordinates of the southwest cell of the community matrix.
-    #currently locked at 5,5
-    x_location = db.FloatProperty()
-    y_location = db.FloatProperty()
-    #Distance between community matrix cells
-    #Note- currently locked a 5
-    spacing = db.FloatProperty()
 
 
 class ParametersFormPageOne(webapp.RequestHandler):
@@ -196,24 +134,28 @@ class ParametersFormPageOne(webapp.RequestHandler):
                 &nbsp;&nbsp;
             </p>
             <p>
-                <b>Community appearance:</b> Specify whether the community should appear natural (plants randomly placed near the coordinates) or crop-like (plants placed exactly on the matrix coordinates).  This does not effect the simulation results - only the appearance.<br>
-                Natural: <input name="natural" checked="checked" type="checkbox">
+                <b>Select the water/moisture/precipitation level:</b><br>
+                <input type="radio" name="water_level" value="4">Highest<br>
+                <input type="radio" name="water_level" value="3">Higher<br>
+                <input type="radio" name="water_level" value="2" checked>Normal<br>
+                <input type="radio" name="water_level" value="1">Lower<br>
+                <input type="radio" name="water_level" value="0">Lowest<br>
             </p>
             <p>
-                <b>Select the soil salinity, drainage, and fertility maps:</b> <br>(
-                Choice of soil maps is not implemented.  These default maps will be used)<br>
-                Salinity:
-                <input type="radio" name="salinity" value="0" checked>
-                <img src="/images/SoilXmap.jpg" height="100" width="100" />
-                &nbsp;&nbsp;
-                Drainage:
-                <input type="radio" name="drainage" value="1" checked>
-                <img src="/images/SoilYmap.jpg" height="100" width="100" />
-                &nbsp;&nbsp;
-                Fertility:
-                <input type="radio" name="fertility" value="2" checked>
-                <img src="/images/SoilZmap.jpg" height="100" width="100" /><br>
-                <b>Grayscale legend:</b> Black=Low values, White=High values
+                <b>Select the light level:</b><br>
+                <input type="radio" name="light_level" value="4">Highest<br>
+                <input type="radio" name="light_level" value="3">Higher<br>
+                <input type="radio" name="light_level" value="2" checked>Normal<br>
+                <input type="radio" name="light_level" value="1">Lower<br>
+                <input type="radio" name="light_level" value="0">Lowest<br>
+            </p>
+            <p>
+                <b>Select the temperature level:</b><br>
+                <input type="radio" name="temperature_level" value="4">Highest<br>
+                <input type="radio" name="temperature_level" value="3">Higher<br>
+                <input type="radio" name="temperature_level" value="2" checked>Normal<br>
+                <input type="radio" name="temperature_level" value="1">Lower<br>
+                <input type="radio" name="temperature_level" value="0">Lowest<br>
             </p>
             <input type="submit" value="Continue...">
         </form>
@@ -232,153 +174,54 @@ class ParametersFormPageTwo(webapp.RequestHandler):
             link_option = ''
             if (i == 1):
                 link_option = self.form_plant_examples_link
-            self.response.out.write(self.form_plant_data % (i, i, link_option, i, i, i, i, i, i, i, i, i))
-        self.response.out.write(self.form_replacement_matrix)
-        for row in range(1,6):
-            if (row == 3):
-                self.response.out.write(self.form_response_table_row % row)
-            else:
-                self.response.out.write(self.form_response_table_header % row)
-            for  column in range(6):
-                self.response.out.write(self.form_replacement_value_select % (row, column))
-            self.response.out.write('</tr>')
-        self.response.out.write('</tbody></table></p>')
-        self.response.out.write(self.form_hidden_fields % (self.request.get('natural'), self.request.get('terrain'), self.request.get('salinity'),
-            self.request.get('drainage'), self.request.get('fertility')))
+            self.response.out.write(self.form_plant_data % (i, i, link_option))
+        self.response.out.write(self.form_hidden_fields % (self.request.get('terrain'), self.request.get('water_level'), self.request.get('light_level'), self.request.get('temperature_level')))
         self.response.out.write(self.form_submit_button)
         self.response.out.write(page.footer)
 
     form_header = """
         <form enctype="multipart/form-data" action="/parametersform3" method="post">
+        <p>
+            <b>Select 5 plant species to include in the community:</b>
+        </p>
         """
 
     form_plant_data = """
         <p>
-            <b>Plant type %s: </b></br>&nbsp;&nbsp;
-            <b>Appearance: </b>
+            &nbsp;&nbsp;Species %s
             <select name="plant_code_%s">
-                <option value = "1">Pine1</option>
-                <option value = "2">Pine2</option>
-                <option value = "3">Pine3</option>
-                <option value = "4">Pine4</option>
-                <option value = "5">Oak</option>
-                <option value = "6">Bush1</option>
-                <option value = "7">Bush2</option>
-                <option value = "8">Palm1</option>
-                <option value = "9">Palm2</option>
-                <option value = "10">Dogwood</option>
-                <option value = "11">Cypress1</option>
-                <option value = "12">Cypress2</option>
-                <option value = "13">Plumeria</option>
-                <option value = "14">Aspen</option>
-                <option value = "15">Eucalyptus</option>
-                <option value = "16">Fern</option>
-                <option value = "17">Eelgrass</option>
-                <option value = "18">SeaSword</option>
-                <option value = "19">BeachGrass</option>
+                <option value = "-1">---</option>
+                <option value = "0">Alder</option>
+                <option value = "1">Bamboo</option>
+                <option value = "2">Grass</option>
+                <option value = "3">Banyan</option>
+                <option value = "4">Bush1</option>
+                <option value = "5">Bush2</option>
+                <option value = "6">Bush3</option>
+                <option value = "7">Bush4</option>
+                <option value = "8">Bush5</option>
+                <option value = "9">Bush5a</option>
+                <option value = "10">Bush6</option>
+                <option value = "11">Bush6a</option>
+                <option value = "12">Bush7</option>
+                <option value = "13">Fern</option>
+                <option value = "14">Maple</option>
+                <option value = "15">Mimosa</option>
+                <option value = "16">Palm</option>
+                <option value = "17">Cots Pine</option>
+                <option value = "18">Sycamore</option>
+                <option value = "19">Willow</option>
             </select>
-            %s<br>&nbsp;&nbsp;
-            <b>Lifespan: </b>
-            <select name="lifespan_%s">
-                <option value = "S">Short</option>
-                <option selected value = "M">Medium</option>
-                <option value = "L">Long</option>
-            </select><br>&nbsp;&nbsp;
-            <b>Altitude- </b> Optimum:
-            <select name="altitude_optimum_%s">
-                <option value = "L">Low</option>
-                <option  selected value = "M">Mid</option>
-                <option value = "H">High</option>
-            </select>&nbsp;&nbsp;&nbsp;&nbsp;
-            Effect:
-            <select name="altitude_effect_%s">
-                <option value = "N">None</option>
-                <option value = "L">Low</option>
-                <option value = "M">Mid</option>
-                <option value = "H">High</option>
-            </select><br>&nbsp;&nbsp;
-            <b>Salinity- </b> Optimum:
-            <select name="salinity_optimum_%s">
-                <option value = "L">Low</option>
-                <option selected value = "M">Mid</option>
-                <option value = "H">High</option>
-            </select>&nbsp;&nbsp;&nbsp;&nbsp;
-            Effect:
-            <select name="salinity_effect_%s">
-                <option value = "N">None</option>
-                <option value = "L">Low</option>
-                <option value = "M">Mid</option>
-                <option value = "H">High</option>
-            </select><br>&nbsp;&nbsp;
-            <b>Drainage- </b> Optimum:
-            <select name="drainage_optimum_%s">
-                <option value = "L">Low</option>
-                <option selected value = "M">Mid</option>
-                <option value = "H">High</option>
-            </select>&nbsp;&nbsp;&nbsp;&nbsp;
-            Effect:
-            <select name="drainage_effect_%s">
-                <option value = "N">None</option>
-                <option value = "L">Low</option>
-                <option value = "M">Mid</option>
-                <option value = "H">High</option>
-            </select><br>&nbsp;&nbsp;
-            <b>Fertility- </b> Optimum:
-            <select name="fertility_optimum_%s">
-                <option value = "L">Low</option>
-                <option selected value = "M">Mid</option>
-                <option value = "H">High</option>
-            </select>&nbsp;&nbsp;&nbsp;&nbsp;
-            Effect:
-            <select name="fertility_effect_%s">
-                <option value = "N">None</option>
-                <option value = "L">Low</option>
-                <option value = "M">Mid</option>
-                <option value = "H">High</option>
-            </select><br>
+            %s
         """
 
     form_plant_examples_link = '<a href="/plants" target="_blank">View examples</a>'
 
-    form_replacement_matrix = """
-        </p>
-        <p>
-            <b>Replacement Matrix</b><br>
-            Specify the probability that an individual plant type A will be replaced by plant type B<br>
-            when surrounded on all sides.
-        </p>
-        <table border="0"><tbody>
-            <tr>
-                <td></td><td></td><td></td><td></td><td></td>
-                <th><b>A</b></th>
-            </tr>
-            <tr>
-                <th></th><th></th><th>0 (gap)</th><th>1</th>
-                <th>2</th><th>3</th><th>4</th><th>5</th>
-            </tr>
-        """
-
-    form_response_table_row = '<tr><td><b> B &nbsp;&nbsp;&nbsp;</b></td><th> %s </th>'
-
-    form_response_table_header = '<tr><td></td><th> %s </th>'
-
-    form_replacement_value_select = """
-        <td>
-            <select name="replace_%s_%s">
-                <option value = "L">Low</option>
-                <option selected value = "M">Mid</option>
-                <option value = "H">High</option>
-            </select>
-        </td>
-        """
-
     form_hidden_fields = """
-        <input type="hidden" name="disturbance_only" value="0">
-        <input type="hidden" name="natural" value="%s">
         <input type="hidden" name="terrain" value="%s">
-        <input type="hidden" name="salinity" value="%s">
-        <input type="hidden" name="drainage" value="%s">
-        <input type="hidden" name="fertility" value="%s">
+        <input type="hidden" name="water_level" value="%s">
+        <input type="hidden" name="light_level" value="%s">
+        <input type="hidden" name="temperature_level" value="%s">
         """
 
     form_submit_button = '</p><input type="submit" value="Continue..."></form>'
@@ -405,11 +248,14 @@ class PlantPicturesPage(webapp.RequestHandler):
         self.response.out.write(page.footer)
 
     picture_table = """
+        <p>
+            <b>TODO:<br>Pictures & species names are wrong.<br>This page should show a picture of each plant and provide info on lifespan, habitat/environment, and susceptibility to human disturbance.</b>
+        </p>
         <table border="0">
             <tbody>
                 <tr>
-                    <th>Pine1</th><th>Pine2</th><th>Pine3</th>
-                    <th>Pine4</th><th>Oak</th>
+                    <th>Alder</th><th>Bamboo</th><th>Grass</th>
+                    <th>Banyan</th><th>Bush1</th>
                 </tr>
                 <tr>
                     <td><img src="/images/Pine1.png" height="100" width="125"/></td>
@@ -422,8 +268,8 @@ class PlantPicturesPage(webapp.RequestHandler):
                     <td><br></td>
                 </tr>
                 <tr>
-                    <th>Bush1</th><th>Bush2</th><th>Palm1</th>
-                    <th>Palm2</th><th>Dogwood</th>
+                    <th>Bush2</th><th>Bush3</th><th>Bush4</th>
+                    <th>Bush5</th><th>Bush5a</th>
                 </tr>
                 <tr>
                     <td><img src="/images/Bush1.png" height="100" width="125"/></td>
@@ -436,8 +282,8 @@ class PlantPicturesPage(webapp.RequestHandler):
                     <td><br></td>
                 </tr>
                 <tr>
-                    <th>Cypress1</th><th>Cypress2</th><th>Plumeria</th>
-                    <th>Aspen</th><th>Eucalyptus</th>
+                    <th>Bush6</th><th>Bush6a</th><th>Bush7</th>
+                    <th>Fern</th><th>Maple</th>
                 </tr>
                 <tr>
                     <td><img src="/images/Cypress1.png" height="100" width="125"/></td>
@@ -450,8 +296,8 @@ class PlantPicturesPage(webapp.RequestHandler):
                     <td><br></td>
                 </tr>
                 <tr>
-                    <th>Fern</th><th>Eelgrass</th><th>Seasword</th>
-                    <th>Beachgrass</th><th></th>
+                    <th>Mimosa</th><th>Palm</th><th>Cots Pine</th>
+                    <th>Sycamore</th><th>Willow</th>
                 </tr>
                 <tr>
                     <td><img src="/images/Fern.png" height="100" width="125"/></td>
@@ -464,58 +310,9 @@ class PlantPicturesPage(webapp.RequestHandler):
         </table>
         """
 
-
-class SelectTerrainMapPage(webapp.RequestHandler):
-    """
-    Select the map for the background on ParametersFormPageThree.  Accessed by selecting Change disturbance only from LogOrParameters.
-    """
-    def get(self):
-        page = HtmlPage()
-        self.response.out.write(page.header)
-        self.response.out.write(self.form_header)
-        self.response.out.write(self.form_terrain_radio_buttons)
-        self.response.out.write(self.form_hidden_fields)
-        self.response.out.write(self.form_submit_button)
-
-        self.response.out.write(self.form_footer)
-        self.response.out.write(page.footer)
-
-    form_header = """
-        <form enctype="multipart/form-data" action="/parametersform3" method="post">
-        """
-
-    form_terrain_radio_buttons = """
-        <p>
-            <b>Select the terrain used in the region:</b><br>
-            <input type="radio" name="terrain" value="0" checked>0
-            <img src="/images/Terrain0_map.jpg" height="100" width="100" />
-            &nbsp;&nbsp;
-            <input type="radio" name="terrain" value="1">1
-            <img src="/images/Terrain1_map.jpg" height="100" width="100" />
-            &nbsp;&nbsp;
-            <input type="radio" name="terrain" value="2">2
-            <img src="/images/Terrain2_map.jpg" height="100" width="100" />
-            &nbsp;&nbsp;
-            <input type="radio" name="terrain" value="3">3
-            <img src="/images/Terrain3_map.jpg" height="100" width="100" />
-            &nbsp;&nbsp;
-        </p>
-        """
-
-    form_hidden_fields = """
-        <input type="hidden" name="disturbance_only" value="1">
-        """
-
-    form_submit_button = """
-        <input type="submit" value="Continue...">
-        """
-
-    form_footer = '</form>'
-
-
 class ParametersFormPageThree(webapp.RequestHandler):
     """
-    Page 3 of the three page parameters request form.  Accessed by submitting ParametersFormPageTwo or by submitting the SelectTerrainMapPage.  Controls starting matrix and disturbance settings and stores the output from all three pages.
+    Page 3 of the three page parameters request form.  Accessed by submitting ParametersFormPageTwo.  Controls starting matrix and disturbance settings and stores the output from all three pages.
     """
     def post(self):
         submit_value = self.request.get('submit_value')
@@ -524,18 +321,14 @@ class ParametersFormPageThree(webapp.RequestHandler):
             self.response.out.write(page.header)
             self.id = str(int(time.time()))
             self.store_record()
-            if (self.request.get('disturbance_only') == "0"):
-                self.response.out.write(self.success_output_all_parameters % self.id)
-            else:
-                self.response.out.write(self.success_output_disturbance_only % self.id)
+            self.response.out.write(self.success_output_all_parameters % self.id)
             self.response.out.write(page.footer)
         else:
             self.redraw_form(submit_value)
 
     def redraw_form(self, submit_value):
         page = HtmlPage()
-        disturbance_only = self.request.get('disturbance_only')
-        ongoing_disturbance = self.request.get('ongoing_disturbance')
+        disturbance_level = self.request.get('disturbance_level')
         terrain = self.request.get('terrain')
         starting_matrix = list(self.request.get('starting_matrix'))
         if (len(starting_matrix) == 0):
@@ -566,14 +359,21 @@ class ParametersFormPageThree(webapp.RequestHandler):
             selected.append(clicked)
         self.response.out.write(page.header)
         self.response.out.write(self.form_header)
-        if (ongoing_disturbance == 'L'):
-            self.response.out.write(self.form_ongoing_disturbance_selector % ('','selected', '',''))
-        elif (ongoing_disturbance == 'M'):
-            self.response.out.write(self.form_ongoing_disturbance_selector % ('','', 'selected',''))
-        elif (ongoing_disturbance == 'H'):
-            self.response.out.write(self.form_ongoing_disturbance_selector % ('','', '','selected'))
+        if (disturbance_level == '1'):
+            self.response.out.write(self.form_ongoing_disturbance_selector % (
+            '', 'selected', '', '', ''))
+        elif (disturbance_level == '2'):
+            self.response.out.write(self.form_ongoing_disturbance_selector % (
+            '', '', 'selected', '', ''))
+        elif (disturbance_level == '3'):
+            self.response.out.write(self.form_ongoing_disturbance_selector % (
+            '', '', '', 'selected', ''))
+        elif (disturbance_level == '4'):
+            self.response.out.write(self.form_ongoing_disturbance_selector % (
+            '', '', '', '', 'selected'))
         else:
-            self.response.out.write(self.form_ongoing_disturbance_selector % ('selected','', '',''))
+            self.response.out.write(self.form_ongoing_disturbance_selector % (
+            'selected', '', '', '', ''))
         self.response.out.write(self.form_starting_matrix_map_label)
         self.response.out.write(self.form_table_header % terrain)
         for j in range(50):
@@ -588,42 +388,23 @@ class ParametersFormPageThree(webapp.RequestHandler):
                 self.response.out.write('<br>')
         self.response.out.write(self.form_table_footer)
         if (len(selected) > 0):
-            if (disturbance_only == "0"):
-                self.response.out.write(self.form_cell_value_selector)
-            else:
-                self.response.out.write(self.form_cell_value_selector_disturbance_only)
+            self.response.out.write(self.form_cell_value_selector)
             self.response.out.write(self.form_assign_cells_button)
             if (len(selected) == 2):
                 self.response.out.write(self.form_assign_area_button)
         else:
             self.response.out.write('<br>')
         self.response.out.write(self.form_submit_button)
-        #Pass the list of selected cells, the current starting matrix, whether we are only changing disturbance, ongoing disturbance value and which terrain we are using.
+        #Pass the list of selected cells, the current starting matrix, ongoing disturbance value and which terrain we are using.
         self.response.out.write(self.form_active_hidden_fields % (
-            ','.join(selected),
-            ''.join(starting_matrix),
-            disturbance_only,
-            terrain))
+            ','.join(selected),''.join(starting_matrix),terrain))
         #Pass the values from previous form pages (if we used those previous pages)
-        if (disturbance_only == '0'):
-            self.response.out.write(self.form_passive_hidden_fields % (
-                self.request.get('natural'),
-                self.request.get('salinity'),
-                self.request.get('drainage'),
-                self.request.get('fertility')))
-            for x in range(1, 6):
-                self.response.out.write(self.form_plant_code_hidden_field % (x, self.request.get('plant_code_%s' % x)))
-                self.response.out.write(self.form_lifespan_hidden_field % (x, self.request.get('lifespan_%s' % x)))
-                self.response.out.write(self.form_altitude_optimum_hidden_field % (x, self.request.get('altitude_optimum_%s' % x)))
-                self.response.out.write(self.form_altitude_effect_hidden_field % (x, self.request.get('altitude_effect_%s' % x)))
-                self.response.out.write(self.form_drainage_optimum_hidden_field % (x, self.request.get('drainage_optimum_%s' % x)))
-                self.response.out.write(self.form_drainage_effect_hidden_field % (x, self.request.get('drainage_effect_%s' % x)))
-                self.response.out.write(self.form_salinity_optimum_hidden_field % (x, self.request.get('salinity_optimum_%s' % x)))
-                self.response.out.write(self.form_salinity_effect_hidden_field % (x, self.request.get('salinity_effect_%s' % x)))
-                self.response.out.write(self.form_fertility_optimum_hidden_field % (x, self.request.get('fertility_optimum_%s' % x)))
-                self.response.out.write(self.form_fertility_effect_hidden_field % (x, self.request.get('fertility_effect_%s' % x)))
-                for y in range(6):
-                    self.response.out.write(self.form_replace_hidden_field % (x, y, self.request.get('replace_%s_%s' % (x, y))))
+        self.response.out.write(self.form_passive_hidden_fields % (
+            self.request.get('water_level'),
+            self.request.get('light_level'),
+            self.request.get('temperature_level')))
+        for x in range(1, 6):
+            self.response.out.write(self.form_plant_code_hidden_field % (x, self.request.get('plant_code_%s' % x)))
         self.response.out.write(self.form_footer)
         self.response.out.write(page.footer)
 
@@ -653,62 +434,18 @@ class ParametersFormPageThree(webapp.RequestHandler):
         record = MeadowRecordObject()
         # Store a timestamp as the record id
         record.id = self.id
-        # Store the disturbance_only, matrix xy sizes, position, spacing, appearance, terrain, salinity, drainage, and fertility maps.
-        record.disturbance_only = int(self.request.get('disturbance_only'))
-        if (record.disturbance_only == 0):
-            record.x_size = 50
-            record.y_size = 50
-            record.x_location = 5.0
-            record.y_location = 5.0
-            record.spacing = 5.0
-            appearance = self.request.get('natural')
-            if (appearance == 'on'):
-                record.natural = 1
-            else:
-                record.natural = 0
-            record.terrain = int(self.request.get('terrain'))
-            record.salinity = int(self.request.get('salinity'))
-            record.drainage = int(self.request.get('drainage'))
-            record.fertility = int(self.request.get('fertility'))
-            record.plant_types = ''
-            record.lifespans = ''
-            record.altitude_optimums = ''
-            record.altitude_effects = ''
-            record.salinity_optimums = ''
-            record.salinity_effects = ''
-            record.drainage_optimums = ''
-            record.drainage_effects = ''
-            record.fertility_optimums = ''
-            record.fertility_effects = ''
-            for i in range(1, 6):
-                comma = ','
-                if (i == 5):
-                    comma = ''
-                record.plant_types += self.request.get('plant_code_%s' % i) + comma
-                record.lifespans += self.request.get('lifespan_%s' % i) + comma
-                record.altitude_optimums += self.request.get('altitude_optimum_%s' % i) + comma
-                record.altitude_effects += self.request.get('altitude_effect_%s' % i) + comma
-                record.salinity_optimums += self.request.get('salinity_optimum_%s' % i) + comma
-                record.salinity_effects += self.request.get('salinity_effect_%s' % i) + comma
-                record.drainage_optimums += self.request.get('drainage_optimum_%s' % i) + comma
-                record.drainage_effects += self.request.get('drainage_effect_%s' % i) + comma
-                record.fertility_optimums += self.request.get('fertility_optimum_%s' % i) + comma
-                record.fertility_effects += self.request.get('fertility_effect_%s' % i) + comma
-            # Store the replacement probabilities
-            replacement_strings = {}
-            for x in range(1,6):
-                row_string = ''
-                for y in range(6):
-                    row_string += self.request.get('replace_%s_%s' % (x, y))
-                    if (y < 5):
-                        row_string += ','
-                replacement_strings[str(x)] = row_string
-            record.replacement_1 = replacement_strings['1']
-            record.replacement_2 = replacement_strings['2']
-            record.replacement_3 = replacement_strings['3']
-            record.replacement_4 = replacement_strings['4']
-            record.replacement_5 = replacement_strings['5']
-        record.ongoing_disturbance = self.request.get('ongoing_disturbance')
+        # Store the terrain, water_level, light_level, and temperature_level, and list of plant_species.
+        record.terrain = int(self.request.get('terrain'))
+        record.water_level = int(self.request.get('water_level'))
+        record.light_level = int(self.request.get('light_level'))
+        record.temperature_level = int(self.request.get('temperature_level'))
+        record.plant_types = ''
+        for i in range(1, 6):
+            comma = ','
+            if (i == 5):
+                comma = ''
+            record.plant_types += self.request.get('plant_code_%s' % i) + comma
+        record.disturbance_level = int(self.request.get('disturbance_level'))
         # Store the community matrix
         #This matrix starts with 0 in the NW corner and I need 0 in the SW corner
         temp_starting_matrix = self.request.get('starting_matrix')
@@ -726,43 +463,15 @@ class ParametersFormPageThree(webapp.RequestHandler):
     success_output_all_parameters = """
         <p>
             <span style="font-size: larger;">
-                The community parameters are ready to load.
+                The simulation parameters are ready to load.
             </span>
         </p>
         <p>
-            To generate the community and run the simulation:
-        </p>
-        <p>
-            <ul>
-                <li>Move your avatar into the region where you would like it to load.</li>
-                <li>Paste the following text into the chat window:</li>
-            </ul>
+            To run the simulation use the following simulation code.<br>Write it down - you will need it when you report your results.
         </p>
         <p>
             <blockquote style="font-size: larger;">
-                <b>/18 %s</b>
-            </blockquote>
-        </p>
-        """
-
-    success_output_disturbance_only = """
-        <p>
-            <span style="font-size: larger;">
-                The disturbance changes are ready to load.
-            </span>
-        </p>
-        <p>
-            To apply the changes:
-        </p>
-        <p>
-            <ul>
-                <li>Move your avatar into the correct region.</li>
-                <li>Paste the following text into the chat window:</li>
-            </ul>
-        </p>
-        <p>
-            <blockquote style="font-size: larger;">
-                <b>/18 %s</b>
+                <b>%s</b>
             </blockquote>
         </p>
         """
@@ -771,12 +480,13 @@ class ParametersFormPageThree(webapp.RequestHandler):
 
     form_ongoing_disturbance_selector= """
         <p>
-            <b>Ongoing disturbance rate: <b>
-            <select name="ongoing_disturbance">
-                <option %s value = "N">None</option>
-                <option %s value = "L">Low</option>
-                <option %s value = "M">Mid</option>
-                <option %s value = "H">High</option>
+            <b>Ongoing disturbance level: <b>
+            <select name="disturbance_level">
+                <option %s value = "0">None</option>
+                <option %s value = "1">Very Low</option>
+                <option %s value = "2">Low</option>
+                <option %s value = "3">High</option>
+                <option %s value = "4">Very High</option>
             </select>
         <p>
         """
@@ -828,71 +538,20 @@ class ParametersFormPageThree(webapp.RequestHandler):
     form_active_hidden_fields = """
         <input type="hidden" name="selected" value="%s">
         <input type="hidden" name="starting_matrix" value="%s">
-        <input type="hidden" name="disturbance_only" value="%s">
         <input type="hidden" name="terrain" value="%s">
         """
 
     form_passive_hidden_fields = """
-        <input type="hidden" name="natural" value="%s">
-        <input type="hidden" name="salinity" value="%s">
-        <input type="hidden" name="drainage" value="%s">
-        <input type="hidden" name="fertility" value="%s">
+        <input type="hidden" name="water_level" value="%s">
+        <input type="hidden" name="light_level" value="%s">
+        <input type="hidden" name="temperature_level" value="%s">
         """
 
     form_plant_code_hidden_field = """
         <input type="hidden" name="plant_code_%s" value="%s">
         """
 
-    form_lifespan_hidden_field = """
-        <input type="hidden" name="lifespan_%s" value="%s">
-        """
-
-    form_altitude_optimum_hidden_field = """
-        <input type="hidden" name="altitude_optimum_%s" value="%s">
-    """
-
-    form_altitude_effect_hidden_field = """
-        <input type="hidden" name="altitude_effect_%s" value="%s">
-        """
-
-    form_salinity_optimum_hidden_field = """
-        <input type="hidden" name="salinity_optimum_%s" value="%s">
-        """
-
-    form_salinity_effect_hidden_field = """
-        <input type="hidden" name="salinity_effect_%s" value="%s">
-        """
-
-    form_drainage_optimum_hidden_field = """
-        <input type="hidden" name="drainage_optimum_%s" value="%s">
-        """
-
-    form_drainage_effect_hidden_field= """
-        <input type="hidden" name="drainage_effect_%s" value="%s">
-        """
-
-    form_fertility_optimum_hidden_field = """
-        <input type="hidden" name="fertility_optimum_%s" value="%s">
-        """
-
-    form_fertility_effect_hidden_field= """
-        <input type="hidden" name="fertility_effect_%s" value="%s">
-        """
-
-    form_replace_hidden_field = """
-        <input type="hidden" name="replace_%s_%s" value="%s">
-    """
-
     form_footer = '</form>'
-
-class RedirectToLog(webapp.RequestHandler):
-    """
-    Send them to the logging app.
-    """
-    def get(self):
-        #TEMP: Until I can get the logging system to output nice csv files we will redirect to apache hosted files
-        #self.redirect("http://vpcsimlog.aduffy70.org", permanent=True)
-        self.redirect("http://129.123.16.10/vpcsim-data")
 
 # url to class mapping
 application = webapp.WSGIApplication([
@@ -901,9 +560,7 @@ application = webapp.WSGIApplication([
     ('/parametersform2', ParametersFormPageTwo),
     ('/parametersform3', ParametersFormPageThree),
     ('/data', GetParameters),
-    ('/selectmap', SelectTerrainMapPage),
-    ('/plants', PlantPicturesPage),
-    ('/log', RedirectToLog)], debug=True)
+    ('/plants', PlantPicturesPage)], debug=True)
 
 def main():
     run_wsgi_app(application)
