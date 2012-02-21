@@ -1,4 +1,4 @@
-application: VPCsim-parameters
+application: vpcsim-parameters
 version: 1
 runtime: python
 api_version: 1
