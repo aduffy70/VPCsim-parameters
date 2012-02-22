@@ -224,7 +224,7 @@ class ParametersFormPageTwo(webapp.RequestHandler):
         <input type="hidden" name="temperature_level" value="%s">
         """
 
-    form_submit_button = '</p><input type="submit" value="Continue..."></form>'
+    form_submit_button = '</p><input type="submit" name="next" value="Continue..."></form>'
 
 
 class GetParameters(webapp.RequestHandler):
@@ -336,8 +336,12 @@ class ParametersFormPageThree(webapp.RequestHandler):
             starting_matrix = []
             for i in range(2500):
                 starting_matrix.append('R')
-        clicked = self.request.get('clicked')
-        submit_value = self.request.get('submit_value')
+        clicked = ''
+        if ((submit_value == '') and (self.request.get('next') == '')):
+            argument_list = self.request.arguments()
+            argument_list.sort()
+            submit_value = argument_list[0].split('.')[0][3:]
+            clicked = submit_value
         selected = []
         selected_string = self.request.get('selected')
         if (selected_string != ''):
@@ -353,8 +357,8 @@ class ParametersFormPageThree(webapp.RequestHandler):
             for cell in selected_area:
                 starting_matrix[int(cell)] = cell_value
             selected = []
-        elif (clicked in selected):
-            selected.remove(clicked)
+        elif (submit_value in selected):
+            selected.remove(submit_value)
         else:
             selected.append(clicked)
         self.response.out.write(page.header)
@@ -497,7 +501,7 @@ class ParametersFormPageThree(webapp.RequestHandler):
 
     form_table_header = '<table background="/images/Terrain%s_map.jpg"><tbody><td>'
 
-    form_button = '<input type="image" name="clicked" value="%s" src="/images/%sbutton.png" style="width: 10px; height=10px;">'
+    form_button = '<input type="image" name="aaa%s" src="/images/%sbutton.png" style="width: 10px; height=10px;">'
 
     form_table_footer = '</td></tbody></table>'
 
