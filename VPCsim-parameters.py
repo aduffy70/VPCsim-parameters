@@ -190,7 +190,6 @@ class ParametersFormPageTwo(webapp.RequestHandler):
         <p>
             &nbsp;&nbsp;Species %s
             <select name="plant_code_%s">
-                <option value = "-1">---</option>
                 <option value = "0">Alder</option>
                 <option value = "1">Bamboo</option>
                 <option value = "2">Grass</option>
@@ -258,11 +257,11 @@ class PlantPicturesPage(webapp.RequestHandler):
                     <th>Banyan</th><th>Bush1</th>
                 </tr>
                 <tr>
-                    <td><img src="/images/Pine1.png" height="100" width="125"/></td>
-                    <td><img src="/images/Pine2.png" height="100" width="125"/></td>
-                    <td><img src="/images/Pine3.png" height="100" width="125"/></td>
-                    <td><img src="/images/Pine4.png" height="100" width="125"/></td>
-                    <td><img src="/images/Oak.png" height="100" width="125"/></td>
+                    <td><img src="/images/Alder.png" height="100" width="125"/></td>
+                    <td><img src="/images/Bamboo.png" height="100" width="125"/></td>
+                    <td><img src="/images/Grass.png" height="100" width="125"/></td>
+                    <td><img src="/images/Banyan.png" height="100" width="125"/></td>
+                    <td><img src="/images/Bush1.png" height="100" width="125"/></td>
                 </tr>
                 <tr>
                     <td><br></td>
@@ -272,11 +271,11 @@ class PlantPicturesPage(webapp.RequestHandler):
                     <th>Bush5</th><th>Bush5a</th>
                 </tr>
                 <tr>
-                    <td><img src="/images/Bush1.png" height="100" width="125"/></td>
                     <td><img src="/images/Bush2.png" height="100" width="125"/></td>
-                    <td><img src="/images/Palm1.png" height="100" width="125"/></td>
-                    <td><img src="/images/Palm2.png" height="100" width="125"/></td>
-                    <td><img src="/images/Dogwood.png" height="100" width="125"/></td>
+                    <td><img src="/images/Bush3.png" height="100" width="125"/></td>
+                    <td><img src="/images/Bush4.png" height="100" width="125"/></td>
+                    <td><img src="/images/Bush5.png" height="100" width="125"/></td>
+                    <td><img src="/images/Bush5a.png" height="100" width="125"/></td>
                 </tr>
                 <tr>
                     <td><br></td>
@@ -286,11 +285,11 @@ class PlantPicturesPage(webapp.RequestHandler):
                     <th>Fern</th><th>Maple</th>
                 </tr>
                 <tr>
-                    <td><img src="/images/Cypress1.png" height="100" width="125"/></td>
-                    <td><img src="/images/Cypress2.png" height="100" width="125"/></td>
-                    <td><img src="/images/Plumeria.png" height="100" width="125"/></td>
-                    <td><img src="/images/Aspen.png" height="100" width="125"/></td>
-                    <td><img src="/images/Eucalyptus.png" height="100" width="125"/></td>
+                    <td><img src="/images/Bush6.png" height="100" width="125"/></td>
+                    <td><img src="/images/Bush6a.png" height="100" width="125"/></td>
+                    <td><img src="/images/Bush7.png" height="100" width="125"/></td>
+                    <td><img src="/images/Fern.png" height="100" width="125"/></td>
+                    <td><img src="/images/Maple.png" height="100" width="125"/></td>
                 </tr>
                 <tr>
                     <td><br></td>
@@ -300,11 +299,11 @@ class PlantPicturesPage(webapp.RequestHandler):
                     <th>Sycamore</th><th>Willow</th>
                 </tr>
                 <tr>
-                    <td><img src="/images/Fern.png" height="100" width="125"/></td>
-                    <td><img src="/images/Eelgrass.png" height="100" width="125"/></td>
-                    <td><img src="/images/Seasword.png" height="100" width="125"/></td>
-                    <td><img src="/images/Beachgrass.png" height="100" width="125"/></td>
-                    <td></td>
+                    <td><img src="/images/Mimosa.png" height="100" width="125"/></td>
+                    <td><img src="/images/Palm.png" height="100" width="125"/></td>
+                    <td><img src="/images/CotsPine.png" height="100" width="125"/></td>
+                    <td><img src="/images/Sycamore.png" height="100" width="125"/></td>
+                    <td><img src="/images/Willow.png" height="100" width="125"/></td>
                 </tr>
             </tbody>
         </table>
