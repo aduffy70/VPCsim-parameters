@@ -556,6 +556,85 @@ class ParametersFormPageThree(webapp.RequestHandler):
 
     form_footer = '</form>'
 
+class RequestPlot(webapp.RequestHandler):
+    """
+    Accepts data for plotting and returns an interactive dygraph-based plot.
+    """
+    def get(self):
+        #This should only ever get called with post data but this helps with testing
+        self.post()
+
+    def post(self):
+        plot_type = self.request.get('plot_type')
+        if (plot_type == 'counts'):
+            data_string = self.request.get('data_string')
+            self.request_counts_plot()
+        elif (plot_type == 'ages'):
+            self.request_ages_plot()
+        elif (plot_type == 'biomass'):
+            self.request_biomass_plot()
+        else:
+            self.response.out.write("<html><body>Invalid plot type request</body></html>")
+
+    plot_creation_code = """
+        <html>
+            <head>
+                <script type="text/javascript" src="static/lib/dygraph-combined.js" charset="utf-8"></script>
+            </head>
+            <body>
+                <div id="graphdiv"></div>
+                <script type="text/javascript">
+                    g = new Dygraph(
+                        document.getElementById("graphdiv"),
+                        %s,
+                        {
+                            rollPeriod: 1,
+                            showRoller: true,
+                            includeZero: true,
+                            title: <b>%s</b>,
+                            xlabel: <b>time step</b>,
+                            ylabel: <b>%s</b>,
+                            legend: "always",
+                            labelsSeparateLines: false,
+                            labelsDivWidth: 650,
+                            width: 800,
+                            height: 400,
+                            digitsAfterDecimal: 0,
+                            drawXGrid: false
+                        });
+                </script>
+            </body>
+        </html>
+        """
+
+    plot_data_string_TEST = """
+        "time step,Gaps,Alder,Fern,Sycamore,Sagebrush,Palm\\n" +
+        "0,135,75,10,15,45,120\\n" + "1,163,25,45,34,23,110\\n" + "2,174,26,67,45,65,23\\n" + "3,120,18,75,25,64,98\\n" + "4,58,76,100,25,48,93\\n" + "5,138,70,97,34,35,26\\n" + "6,154,86,25,35,45,55\\n" + "7,220,32,22,51,43,32\\n" + "8,167,35,43,45,54,56\\n" + "9,120,38,64,46,75,57\\n" + "10,118,40,73,37,84,48\\n" + "11,55,65,10,70,110,90\\n" + "12,180,80,34,36,38,32\\n"
+        """
+
+    def request_counts_plot(self):
+        plot_data_string = self.request.get("data_string")
+        #self.response.out.write("<html><body>just testing")
+        #self.response.out.write(plot_data_string)
+        #self.response.out.write("</body></html>")
+        self.response.out.write(self.plot_creation_code % (
+                                plot_data_string,
+                                'Counts by Species',
+                                '# of individuals'))
+
+    def request_ages_plot(self):
+        self.response.out.write(self.plot_creation_code % (
+                                plot_data_string,
+                                'Average Age by Species',
+                                'average age'))
+
+    def request_biomass_plot(self):
+         self.response.out.write(self.plot_creation_code % (
+                                plot_data_string,
+                                'Biomass by Species',
+                                '% of total biomass'))
+
+
 # url to class mapping
 application = webapp.WSGIApplication([
     ('/', LogOrParametersPage),
@@ -563,6 +642,7 @@ application = webapp.WSGIApplication([
     ('/parametersform2', ParametersFormPageTwo),
     ('/parametersform3', ParametersFormPageThree),
     ('/data', GetParameters),
+    ('/requestplot', RequestPlot),
     ('/plants', PlantPicturesPage)], debug=True)
 
 def main():

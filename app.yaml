@@ -11,6 +11,10 @@ handlers:
   static_files: static/crossdomain.xml
   upload: static/crossdomain.xml
 
+- url: /static/lib
+  static_dir: static/lib
+  mime_type: text/javascript
+
 - url: /.*
   script: VPCsim-parameters.py
 
