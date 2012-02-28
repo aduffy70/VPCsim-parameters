@@ -243,71 +243,151 @@ class PlantPicturesPage(webapp.RequestHandler):
     def get(self):
         page = HtmlPage()
         self.response.out.write(page.header)
-        self.response.out.write(self.picture_table)
+        for i in range(20):
+            self.response.out.write(self.plant_info_display % (self.common_names[i],
+                                    self.latin_binomials[i],
+                                    self.common_names[i],
+                                    self.lifespans[i],
+                                    self.water_levels[i],
+                                    self.light_levels[i],
+                                    self.temperature_levels[i],
+                                    self.altitudes[i],
+                                    self.colonizing_levels[i],
+                                    self.replaces_lists[i],
+                                    self.replaced_by_lists[i]))
         self.response.out.write(page.footer)
 
-    picture_table = """
+    plant_info_display = """
         <p>
-            <b>TODO:<br>Pictures & species names are wrong.<br>This page should show a picture of each plant and provide info on lifespan, habitat/environment, and susceptibility to human disturbance.</b>
+            <big><b>%s</b></big> (<i>%s</i>)
+            <table border="0"><tbody><tr valign="top">
+                <td>
+                    <img src="/images/%s.png" height="250" width="300"/>
+                </td>
+                <td>
+                    <b>Lifespan:</b> %s<br><br>
+                    <b>Water:</b> %s<br>
+                    <b>Light:</b> %s<br>
+                    <b>Temp:</b> %s<br>
+                    <b>Altitude:</b> %s<br><br>
+                    <b>Colonizer:</b> %s<br>
+                    <b>Replaces:</b> %s<br>
+                    <b>Replaced by:</b> %s
+                </td>
+            </tr></tbody></table>
         </p>
-        <table border="0">
-            <tbody>
-                <tr>
-                    <th>Alder</th><th>Bamboo</th><th>Grass</th>
-                    <th>Banyan</th><th>Bush1</th>
-                </tr>
-                <tr>
-                    <td><img src="/images/Alder.png" height="100" width="125"/></td>
-                    <td><img src="/images/Bamboo.png" height="100" width="125"/></td>
-                    <td><img src="/images/Grass.png" height="100" width="125"/></td>
-                    <td><img src="/images/Banyan.png" height="100" width="125"/></td>
-                    <td><img src="/images/Bush1.png" height="100" width="125"/></td>
-                </tr>
-                <tr>
-                    <td><br></td>
-                </tr>
-                <tr>
-                    <th>Bush2</th><th>Bush3</th><th>Bush4</th>
-                    <th>Bush5</th><th>Bush5a</th>
-                </tr>
-                <tr>
-                    <td><img src="/images/Bush2.png" height="100" width="125"/></td>
-                    <td><img src="/images/Bush3.png" height="100" width="125"/></td>
-                    <td><img src="/images/Bush4.png" height="100" width="125"/></td>
-                    <td><img src="/images/Bush5.png" height="100" width="125"/></td>
-                    <td><img src="/images/Bush5a.png" height="100" width="125"/></td>
-                </tr>
-                <tr>
-                    <td><br></td>
-                </tr>
-                <tr>
-                    <th>Bush6</th><th>Bush6a</th><th>Bush7</th>
-                    <th>Fern</th><th>Maple</th>
-                </tr>
-                <tr>
-                    <td><img src="/images/Bush6.png" height="100" width="125"/></td>
-                    <td><img src="/images/Bush6a.png" height="100" width="125"/></td>
-                    <td><img src="/images/Bush7.png" height="100" width="125"/></td>
-                    <td><img src="/images/Fern.png" height="100" width="125"/></td>
-                    <td><img src="/images/Maple.png" height="100" width="125"/></td>
-                </tr>
-                <tr>
-                    <td><br></td>
-                </tr>
-                <tr>
-                    <th>Mimosa</th><th>Palm</th><th>Cots Pine</th>
-                    <th>Sycamore</th><th>Willow</th>
-                </tr>
-                <tr>
-                    <td><img src="/images/Mimosa.png" height="100" width="125"/></td>
-                    <td><img src="/images/Palm.png" height="100" width="125"/></td>
-                    <td><img src="/images/CotsPine.png" height="100" width="125"/></td>
-                    <td><img src="/images/Sycamore.png" height="100" width="125"/></td>
-                    <td><img src="/images/Willow.png" height="100" width="125"/></td>
-                </tr>
-            </tbody>
-        </table>
         """
+
+    common_names = ['Alder', 'Bamboo',
+                    'Grass', 'Banyan',
+                    'Bush1', 'Bush2',
+                    'Bush3', 'Bush4',
+                    'Bush5', 'Bush5a',
+                    'Bush6', 'Bush6a',
+                    'Bush7', 'Fern',
+                    'Maple', 'Mimosa',
+                    'Palm', 'CotsPine',
+                    'Sycamore', 'Willow']
+
+    latin_binomials = ['Alnus glutinosa', 'Bambusa vulgaris',
+                       'Bromus tectorum', 'Ficus benghalensis',
+                       'Bushus onsus', 'Bushus twosii',
+                       'Bushus threensis', 'Bushus fourus',
+                       'Bushus fivii', 'Bushus fivea',
+                       'Bushus sixus', 'Bushus sixa',
+                       'Bushus sevensus', 'Polystichum munitum',
+                       'Acer rubrum', 'Acacia dealbata',
+                       'Cocos nucifera', 'Pinus ponderosa',
+                       'Platanus occidentalis', 'Salix fragilis']
+
+    water_levels = ['N', 'N',
+                    'N', 'N',
+                    'N', 'N',
+                    'N', 'N',
+                    'N', 'N',
+                    'N', 'N',
+                    'N', 'N',
+                    'N', 'N',
+                    'N', 'N',
+                    'N', 'N']
+
+    light_levels = ['N', 'N',
+                    'N', 'N',
+                    'N', 'N',
+                    'N', 'N',
+                    'N', 'N',
+                    'N', 'N',
+                    'N', 'N',
+                    'N', 'N',
+                    'N', 'N',
+                    'N', 'N']
+
+    temperature_levels = ['N', 'N',
+                          'N', 'N',
+                          'N', 'N',
+                          'N', 'N',
+                          'N', 'N',
+                          'N', 'N',
+                          'N', 'N',
+                          'N', 'N',
+                          'N', 'N',
+                          'N', 'N']
+
+    altitudes = ['N', 'N',
+                 'N', 'N',
+                 'N', 'N',
+                 'N', 'N',
+                 'N', 'N',
+                 'N', 'N',
+                 'N', 'N',
+                 'N', 'N',
+                 'N', 'N',
+                 'N', 'N']
+
+    lifespans = ['M', 'M',
+                 'M', 'M',
+                 'M', 'M',
+                 'M', 'M',
+                 'M', 'M',
+                 'M', 'M',
+                 'M', 'M',
+                 'M', 'M',
+                 'M', 'M',
+                 'M', 'M']
+
+    colonizing_levels = ['N', 'N',
+                         'N', 'N',
+                         'N', 'N',
+                         'N', 'N',
+                         'N', 'N',
+                         'N', 'N',
+                         'N', 'N',
+                         'N', 'N',
+                         'N', 'N',
+                         'N', 'N']
+
+    replaces_lists = ['A, list, of, plants', 'A, list, of, plants',
+                      'A, list, of, plants', 'A, list, of, plants',
+                      'A, list, of, plants', 'A, list, of, plants',
+                      'A, list, of, plants', 'A, list, of, plants',
+                      'A, list, of, plants', 'A, list, of, plants',
+                      'A, list, of, plants', 'A, list, of, plants',
+                      'A, list, of, plants', 'A, list, of, plants',
+                      'A, list, of, plants', 'A, list, of, plants',
+                      'A, list, of, plants', 'A, list, of, plants',
+                      'A, list, of, plants', 'A, list, of, plants']
+
+    replaced_by_lists = ['A, list, of, plants', 'A, list, of, plants',
+                         'A, list, of, plants', 'A, list, of, plants',
+                         'A, list, of, plants', 'A, list, of, plants',
+                         'A, list, of, plants', 'A, list, of, plants',
+                         'A, list, of, plants', 'A, list, of, plants',
+                         'A, list, of, plants', 'A, list, of, plants',
+                         'A, list, of, plants', 'A, list, of, plants',
+                         'A, list, of, plants', 'A, list, of, plants',
+                         'A, list, of, plants', 'A, list, of, plants',
+                         'A, list, of, plants', 'A, list, of, plants']
+
 
 class ParametersFormPageThree(webapp.RequestHandler):
     """
