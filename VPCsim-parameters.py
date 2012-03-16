@@ -649,7 +649,8 @@ class RequestPlot(webapp.RequestHandler):
         if (plot_type == 'counts'):
             data_string = self.request.get('data_string')
             self.request_counts_plot()
-        elif (plot_type == 'ages'):
+        elif (plot_type == 'age'):
+            data_string = self.request.get('data_string')
             self.request_ages_plot()
         elif (plot_type == 'biomass'):
             self.request_biomass_plot()
@@ -679,7 +680,6 @@ class RequestPlot(webapp.RequestHandler):
                             labelsDivWidth: 650,
                             width: 800,
                             height: 400,
-                            digitsAfterDecimal: 0,
                             drawXGrid: false
                         });
                 </script>
@@ -694,15 +694,13 @@ class RequestPlot(webapp.RequestHandler):
 
     def request_counts_plot(self):
         plot_data_string = self.request.get("data_string")
-        #self.response.out.write("<html><body>just testing")
-        #self.response.out.write(plot_data_string)
-        #self.response.out.write("</body></html>")
         self.response.out.write(self.plot_creation_code % (
                                 plot_data_string,
                                 'Counts by Species',
                                 '# of individuals'))
 
     def request_ages_plot(self):
+        plot_data_string = self.request.get("data_string")
         self.response.out.write(self.plot_creation_code % (
                                 plot_data_string,
                                 'Average Age by Species',
