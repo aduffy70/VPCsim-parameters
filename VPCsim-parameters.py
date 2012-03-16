@@ -40,49 +40,15 @@ class HtmlPage():
 
     instructions = """
         <p>
-            This form generates virtual plants in a simulated plant community growing in the 3D virtual space. Changes made here will not take effect until they are enabled there.<br>
+            This form generates virtual plants in a simulated plant community growing
+            in the 3D virtual space. Changes made here will not take effect until
+            they are enabled there.<br>
         </p>
         <hr>
         """
 
     footer = '</body></html>'
 
-
-class LogOrParametersPage(webapp.RequestHandler):
-    """
-    Page to select either the parameters form or log form.
-    """
-    def get(self):
-        page = HtmlPage()
-        self.response.out.write(page.header)
-        self.response.out.write(self.instructions)
-        self.response.out.write(self.form)
-        self.response.out.write(self.instructions_link)
-        self.response.out.write(page.footer)
-
-    instructions = """
-        <p>
-            <b>Welcome to the virtual plant community simulations (VPCsim) web application.</b>
-        </p>
-        From this page you can:
-        <ul>
-            <li>change the parameters controlling a virtual plant community,</li>
-            <li>  </li>
-        </ul>
-        <hr>
-        """
-
-    form = """
-        <form enctype="multipart/form-data" action="/parametersform1" method="get">
-           <input type="submit" value="Change all parameters" style="width: 175px">
-        </form>
-        """
-
-    instructions_link = """
-        <p>
-            <a href="/images/VPCsimInstructions.pdf" target="_blank">Instructions</a>
-        </p>
-        """
 
 class MeadowRecordObject(db.Model):
     """
@@ -715,8 +681,7 @@ class RequestPlot(webapp.RequestHandler):
 
 # url to class mapping
 application = webapp.WSGIApplication([
-    ('/', LogOrParametersPage),
-    ('/parametersform1', ParametersFormPageOne),
+    ('/', ParametersFormPageOne),
     ('/parametersform2', ParametersFormPageTwo),
     ('/parametersform3', ParametersFormPageThree),
     ('/data', GetParameters),
