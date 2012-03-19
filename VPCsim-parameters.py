@@ -715,15 +715,21 @@ class ShowParametersPage(webapp.RequestHandler):
             self.response.out.write(self.display_parameters %
                                     (simulation_id,
                                      terrain_map,
+                                     terrain_map,
                                      self.levels[water_level],
                                      self.levels[light_level],
                                      self.levels[temperature_level],
+                                     self.disturbance_levels[disturbance_level],
+                                     self.plant_names[int(plant_types[0])],
                                      self.plant_names[int(plant_types[0])],
                                      self.plant_names[int(plant_types[1])],
+                                     self.plant_names[int(plant_types[1])],
+                                     self.plant_names[int(plant_types[2])],
                                      self.plant_names[int(plant_types[2])],
                                      self.plant_names[int(plant_types[3])],
+                                     self.plant_names[int(plant_types[3])],
                                      self.plant_names[int(plant_types[4])],
-                                     self.disturbance_levels[disturbance_level]))
+                                     self.plant_names[int(plant_types[4])]))
         self.response.out.write(page.footer)
 
 
@@ -743,25 +749,42 @@ class ShowParametersPage(webapp.RequestHandler):
                     'Sycamore', 'Willow']
 
     display_parameters = """
+        <h2>Simulation Parameters</h2>
         <p>
             <b>Simulation ID:</b> %s
         </p>
         <p>
             <b>Terrain map:</b> %s<br>
+            <img src="/images/Terrain%s_map.jpg" height="100" width="100" /><br><br>
             <b>Water level:</b> %s<br>
             <b>Light level:</b> %s<br>
             <b>Temperature level:</b> %s<br>
-        </p>
-        <p>
-            <b>Species 1:</b> %s &nbsp;&nbsp;
-            <a href="/plants" target="_blank">View plant details</a><br>
-            <b>Species 2:</b> %s<br>
-            <b>Species 3:</b> %s<br>
-            <b>Species 4:</b> %s<br>
-            <b>Species 5:</b> %s<br>
-        </p>
-        <p>
             <b>Ongoing disturbance level:</b> %s<br>
+        </p>
+        <p>
+            <table border="0" cellspacing="5"><tbody><tr valign="top">
+                <td>
+                    <b>Species 1:</b> %s<br>
+                    <img src="/images/%s.png" height="100" width="125"/><br>
+                </td>
+                <td>
+                    <b>Species 2:</b> %s<br>
+                    <img src="/images/%s.png" height="100" width="125"/><br>
+                </td>
+                <td>
+                    <b>Species 3:</b> %s<br>
+                    <img src="/images/%s.png" height="100" width="125"/><br>
+                </td>
+                <td>
+                    <b>Species 4:</b> %s<br>
+                    <img src="/images/%s.png" height="100" width="125"/><br>
+                </td>
+                <td>
+                    <b>Species 5:</b> %s<br>
+                    <img src="/images/%s.png" height="100" width="125"/><br>
+                </td>
+            </tr></tbody></table>
+            <a href="/plants" target="_blank">View plant details</a><br>
         </p>
         """
 
