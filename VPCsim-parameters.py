@@ -237,8 +237,8 @@ class PlantPicturesPage(webapp.RequestHandler):
                     <b>Temp:</b> %s<br>
                     <b>Altitude:</b> %s<br><br>
                     <b>Colonizer:</b> %s<br>
-                    <b>Replaces:</b> %s<br>
-                    <b>Replaced by:</b> %s
+                    <b>Outcompetes:</b> %s<br>
+                    <b>Outcompeted by:</b> %s
                 </td>
             </tr></tbody></table>
         </p>
@@ -679,6 +679,97 @@ class RequestPlot(webapp.RequestHandler):
                                 '% of total biomass'))
 
 
+class ShowParametersPage(webapp.RequestHandler):
+    """
+    Accepts a simulation ID and returns a summary of the parameters for that ID.
+    """
+    def get(self):
+        page = HtmlPage()
+        self.response.out.write(page.header)
+        simulation_id = self.request.get('id')
+        terrain_map = 0
+        water_level = 2
+        light_level = 2
+        temperature_level = 2
+        disturbance_level = 0
+        plant_types = [2, 13, 14, 17, 19]
+        is_valid_id = True
+        if (simulation_id != 'default'):
+            data = db.GqlQuery("SELECT * FROM MeadowRecordObject WHERE id=:1",
+                            simulation_id)
+            if (data.count(1)):
+                # The simulation ID is valid, display the parameters
+                data = data[0]
+                is_valid_id = True
+                terrain_map = data.terrain
+                water_level = data.water_level
+                light_level = data.light_level
+                temperature_level = data.temperature_level
+                plant_types = data.plant_types.split(',')
+                disturbance_level = data.disturbance_level
+            else:
+                # There is no such simulation ID
+                is_valid_id = False
+                self.response.out.write(self.display_error % simulation_id)
+        if (is_valid_id):
+            self.response.out.write(self.display_parameters %
+                                    (simulation_id,
+                                     terrain_map,
+                                     self.levels[water_level],
+                                     self.levels[light_level],
+                                     self.levels[temperature_level],
+                                     self.plant_names[int(plant_types[0])],
+                                     self.plant_names[int(plant_types[1])],
+                                     self.plant_names[int(plant_types[2])],
+                                     self.plant_names[int(plant_types[3])],
+                                     self.plant_names[int(plant_types[4])],
+                                     self.disturbance_levels[disturbance_level]))
+        self.response.out.write(page.footer)
+
+
+
+    #Conversions from the stored level integer values to human readable values
+    levels = ["Lowest", "Lower", "Normal", "Higher", "Highest"]
+    disturbance_levels = ["None", "Very Low","Low", "High", "Very High"]
+    plant_names = ['Alder', 'Bamboo',
+                    'Grass', 'Banyan',
+                    'Bush1', 'Bush2',
+                    'Bush3', 'Bush4',
+                    'Bush5', 'Bush5a',
+                    'Bush6', 'Bush6a',
+                    'Bush7', 'Fern',
+                    'Maple', 'Mimosa',
+                    'Palm', 'CotsPine',
+                    'Sycamore', 'Willow']
+
+    display_parameters = """
+        <p>
+            <b>Simulation ID:</b> %s
+        </p>
+        <p>
+            <b>Terrain map:</b> %s<br>
+            <b>Water level:</b> %s<br>
+            <b>Light level:</b> %s<br>
+            <b>Temperature level:</b> %s<br>
+        </p>
+        <p>
+            <b>Species 1:</b> %s &nbsp;&nbsp;
+            <a href="/plants" target="_blank">View plant details</a><br>
+            <b>Species 2:</b> %s<br>
+            <b>Species 3:</b> %s<br>
+            <b>Species 4:</b> %s<br>
+            <b>Species 5:</b> %s<br>
+        </p>
+        <p>
+            <b>Ongoing disturbance level:</b> %s<br>
+        </p>
+        """
+
+    display_error = """
+        <p>Simulation ID %s does not exist!</p>
+        """
+
+
 # url to class mapping
 application = webapp.WSGIApplication([
     ('/', ParametersFormPageOne),
@@ -686,7 +777,8 @@ application = webapp.WSGIApplication([
     ('/parametersform3', ParametersFormPageThree),
     ('/data', GetParameters),
     ('/requestplot', RequestPlot),
-    ('/plants', PlantPicturesPage)], debug=True)
+    ('/plants', PlantPicturesPage),
+    ('/show', ShowParametersPage)], debug=True)
 
 def main():
     run_wsgi_app(application)
