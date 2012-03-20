@@ -272,7 +272,7 @@ class PlantPicturesPage(webapp.RequestHandler):
                     'N', 'N',
                     'N', 'N',
                     'N', 'N',
-                    'N', 'N',
+                    'H', 'N',
                     'N', 'N',
                     'N', 'N',
                     'N', 'N']
