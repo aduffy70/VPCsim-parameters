@@ -704,7 +704,7 @@ class ShowParametersPage(webapp.RequestHandler):
         light_level = 2
         temperature_level = 2
         disturbance_level = 0
-        plant_types = [2, 13, 14, 17, 19]
+        plant_types = [1, 13, 14, 17, 19]
         is_valid_id = True
         if (simulation_id != 'default'):
             data = db.GqlQuery("SELECT * FROM MeadowRecordObject WHERE id=:1",
