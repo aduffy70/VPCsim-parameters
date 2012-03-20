@@ -157,24 +157,18 @@ class ParametersFormPageTwo(webapp.RequestHandler):
             &nbsp;&nbsp;Species %s
             <select name="plant_code_%s">
                 <option value = "0">Alder</option>
-                <option value = "1">Bamboo</option>
-                <option value = "2">Grass</option>
-                <option value = "3">Banyan</option>
-                <option value = "4">Bush1</option>
-                <option value = "5">Bush2</option>
-                <option value = "6">Bush3</option>
-                <option value = "7">Bush4</option>
-                <option value = "8">Bush5</option>
-                <option value = "9">Bush5a</option>
-                <option value = "10">Bush6</option>
-                <option value = "11">Bush6a</option>
-                <option value = "12">Bush7</option>
+                <option value = "1">Aspen</option>
+                <option value = "2">Starthistle</option>
+                <option value = "3">Juniper</option>
+                <option value = "4">Serviceberry</option>
+                <option value = "5">Sagebrush</option>
+                <option value = "6">Sumac</option>
+                <option value = "12">Wildrose</option>
                 <option value = "13">Fern</option>
                 <option value = "14">Maple</option>
-                <option value = "15">Mimosa</option>
-                <option value = "16">Palm</option>
-                <option value = "17">Cots Pine</option>
-                <option value = "18">Sycamore</option>
+                <option value = "15">Elderberry</option>
+                <option value = "17">Pine</option>
+                <option value = "18">Cottonwood</option>
                 <option value = "19">Willow</option>
             </select>
             %s
@@ -210,17 +204,22 @@ class PlantPicturesPage(webapp.RequestHandler):
         page = HtmlPage()
         self.response.out.write(page.header)
         for i in range(20):
-            self.response.out.write(self.plant_info_display % (self.common_names[i],
-                                    self.latin_binomials[i],
-                                    self.common_names[i],
-                                    self.lifespans[i],
-                                    self.water_levels[i],
-                                    self.light_levels[i],
-                                    self.temperature_levels[i],
-                                    self.altitudes[i],
-                                    self.colonizing_levels[i],
-                                    self.replaces_lists[i],
-                                    self.replaced_by_lists[i]))
+            #Temporary- skip the plant prototypes that need to be deleted.  I don't want to
+            #actually delete them yet because it would change the index numbers in the various
+            #lists and cause problems with the Unity module.
+            if (i not in [7, 8, 9, 10, 11, 16]):
+                self.response.out.write(self.plant_info_display % (self.common_names[i],
+                                        self.latin_binomials[i],
+                                        self.common_names[i],
+                                        self.lifespans[i],
+                                        self.water_levels[i],
+                                        self.light_levels[i],
+                                        self.temperature_levels[i],
+                                        self.altitudes[i],
+                                        self.colonizing_levels[i],
+                                        self.replaces_lists[i],
+                                        self.replaced_by_lists[i],
+                                        self.other_notes[i]))
         self.response.out.write(page.footer)
 
     plant_info_display = """
@@ -238,33 +237,34 @@ class PlantPicturesPage(webapp.RequestHandler):
                     <b>Altitude:</b> %s<br><br>
                     <b>Colonizer:</b> %s<br>
                     <b>Outcompetes:</b> %s<br>
-                    <b>Outcompeted by:</b> %s
+                    <b>Outcompeted by:</b> %s<br><br>
+                    <b>Other notes:</b> %s
                 </td>
             </tr></tbody></table>
         </p>
         """
 
-    common_names = ['Alder', 'Bamboo',
-                    'Grass', 'Banyan',
-                    'Bush1', 'Bush2',
-                    'Bush3', 'Bush4',
-                    'Bush5', 'Bush5a',
-                    'Bush6', 'Bush6a',
-                    'Bush7', 'Fern',
-                    'Maple', 'Mimosa',
-                    'Palm', 'CotsPine',
-                    'Sycamore', 'Willow']
+    common_names = ['Alder', 'Aspen',
+                    'Starthistle', 'Juniper',
+                    'Serviceberry', 'Sagebrush',
+                    'Sumac', 'Obsolete1',
+                    'Obsolete2', 'Obsolete3',
+                    'Obsolete4', 'Obsolete5',
+                    'Wildrose', 'Fern',
+                    'Maple', 'Elderberry',
+                    'Obsolete6', 'Pine',
+                    'Cottonwood', 'Willow']
 
-    latin_binomials = ['Alnus glutinosa', 'Bambusa vulgaris',
-                       'Bromus tectorum', 'Ficus benghalensis',
-                       'Bushus onsus', 'Bushus twosii',
-                       'Bushus threensis', 'Bushus fourus',
-                       'Bushus fivii', 'Bushus fivea',
-                       'Bushus sixus', 'Bushus sixa',
-                       'Bushus sevensus', 'Polystichum munitum',
-                       'Acer rubrum', 'Acacia dealbata',
-                       'Cocos nucifera', 'Pinus ponderosa',
-                       'Platanus occidentalis', 'Salix fragilis']
+    latin_binomials = ['Alnus tenuifolia', 'Populus tremuloides',
+                       'Centaurea solstitialis', 'Juniperus scopulorum',
+                       'Amelanchier utahensis', 'Artemesia tridentata',
+                       'Rhus glabra', 'Obsolete1',
+                       'Obsolete2', 'Obsolete3',
+                       'Obsolete4', 'Obsolete5',
+                       'Rosa woodsii', 'Pteridium aquilinum',
+                       'Acer grandidentatum', 'Sambucus nigra',
+                       'Obsolete6', 'Pinus ponderosa',
+                       'Populus trichocarpa', 'Salix fragilis']
 
     water_levels = ['N', 'N',
                     'N', 'N',
@@ -322,7 +322,7 @@ class PlantPicturesPage(webapp.RequestHandler):
                  'M', 'M']
 
     colonizing_levels = ['N', 'N',
-                         'N', 'N',
+                         'Y', 'N',
                          'N', 'N',
                          'N', 'N',
                          'N', 'N',
@@ -353,6 +353,17 @@ class PlantPicturesPage(webapp.RequestHandler):
                          'A, list, of, plants', 'A, list, of, plants',
                          'A, list, of, plants', 'A, list, of, plants',
                          'A, list, of, plants', 'A, list, of, plants']
+
+    other_notes = ['Some, relevant, facts', 'Some, relevant, facts',
+                    'Invasive species', '',
+                    'Some, relevant, facts', 'Some, relevant, facts',
+                    'Some, relevant, facts', 'Some, relevant, facts',
+                    'Some, relevant, facts', 'Some, relevant, facts',
+                    'Some, relevant, facts', 'Some, relevant, facts',
+                    'Some, relevant, facts', 'Some, relevant, facts',
+                    'Some, relevant, facts', 'Some, relevant, facts',
+                    'Some, relevant, facts', 'Some, relevant, facts',
+                    'Some, relevant, facts', 'Some, relevant, facts']
 
 
 class ParametersFormPageThree(webapp.RequestHandler):
@@ -654,7 +665,7 @@ class RequestPlot(webapp.RequestHandler):
         """
 
     plot_data_string_TEST = """
-        "time step,Gaps,Alder,Fern,Sycamore,Sagebrush,Palm\\n" +
+        "time step,Gaps,Alder,Fern,Cottonwood,Sagebrush,Pine\\n" +
         "0,135,75,10,15,45,120\\n" + "1,163,25,45,34,23,110\\n" + "2,174,26,67,45,65,23\\n" + "3,120,18,75,25,64,98\\n" + "4,58,76,100,25,48,93\\n" + "5,138,70,97,34,35,26\\n" + "6,154,86,25,35,45,55\\n" + "7,220,32,22,51,43,32\\n" + "8,167,35,43,45,54,56\\n" + "9,120,38,64,46,75,57\\n" + "10,118,40,73,37,84,48\\n" + "11,55,65,10,70,110,90\\n" + "12,180,80,34,36,38,32\\n"
         """
 
@@ -737,16 +748,16 @@ class ShowParametersPage(webapp.RequestHandler):
     #Conversions from the stored level integer values to human readable values
     levels = ["Lowest", "Lower", "Normal", "Higher", "Highest"]
     disturbance_levels = ["None", "Very Low","Low", "High", "Very High"]
-    plant_names = ['Alder', 'Bamboo',
-                    'Grass', 'Banyan',
-                    'Bush1', 'Bush2',
-                    'Bush3', 'Bush4',
-                    'Bush5', 'Bush5a',
-                    'Bush6', 'Bush6a',
-                    'Bush7', 'Fern',
-                    'Maple', 'Mimosa',
-                    'Palm', 'CotsPine',
-                    'Sycamore', 'Willow']
+    plant_names = ['Alder', 'Aspen',
+                    'Starthistle', 'Juniper',
+                    'Serviceberry', 'Sagebrush',
+                    'Sumac', 'Obsolete1',
+                    'Obsolete2', 'Obsolete3',
+                    'Obsolete4', 'Obsolete5',
+                    'Wildrose', 'Fern',
+                    'Maple', 'Elderberry',
+                    'Obsolete6', 'Pine',
+                    'Cottonwood', 'Willow']
 
     display_parameters = """
         <h2>Simulation Parameters</h2>
