@@ -36,7 +36,7 @@ class HtmlPage():
     """
     Class containing basic html page layout.
     """
-    header = '<html><body>'
+    header = '<html><head><title>%s</title></head><body>'
 
     instructions = """
         <p>
@@ -77,7 +77,7 @@ class ParametersFormPageOne(webapp.RequestHandler):
     """
     def get(self):
         page = HtmlPage()
-        self.response.out.write(page.header)
+        self.response.out.write(page.header % 'Simulation parameters form')
         self.response.out.write(page.instructions)
         self.response.out.write(self.form)
         self.response.out.write(page.footer)
@@ -134,7 +134,7 @@ class ParametersFormPageTwo(webapp.RequestHandler):
     """
     def post(self):
         page = HtmlPage()
-        self.response.out.write(page.header)
+        self.response.out.write(page.header % 'Simulation parameters form')
         self.response.out.write(self.form_header)
         for i in range(1,6):
             link_option = ''
@@ -202,7 +202,7 @@ class PlantPicturesPage(webapp.RequestHandler):
     """
     def get(self):
         page = HtmlPage()
-        self.response.out.write(page.header)
+        self.response.out.write(page.header % 'Species info')
         for i in range(20):
             #Temporary- skip the plant prototypes that need to be deleted.  I don't want to
             #actually delete them yet because it would change the index numbers in the various
@@ -374,7 +374,7 @@ class ParametersFormPageThree(webapp.RequestHandler):
         submit_value = self.request.get('submit_value')
         if (submit_value == 'Submit parameters'):
             page = HtmlPage()
-            self.response.out.write(page.header)
+            self.response.out.write(page.header % 'Simulation parameters form')
             self.id = str(int(time.time()))
             self.store_record()
             self.response.out.write(self.success_output_all_parameters % self.id)
@@ -417,7 +417,7 @@ class ParametersFormPageThree(webapp.RequestHandler):
             selected.remove(submit_value)
         else:
             selected.append(clicked)
-        self.response.out.write(page.header)
+        self.response.out.write(page.header % 'Simulation parameters form')
         self.response.out.write(self.form_header)
         if (disturbance_level == '1'):
             self.response.out.write(self.form_ongoing_disturbance_selector % (
@@ -637,6 +637,7 @@ class RequestPlot(webapp.RequestHandler):
     plot_creation_code = """
         <html>
             <head>
+                <title>Plot</title>
                 <script type="text/javascript" src="static/lib/dygraph-combined.js" charset="utf-8"></script>
             </head>
             <body>
@@ -696,7 +697,7 @@ class ShowParametersPage(webapp.RequestHandler):
     """
     def get(self):
         page = HtmlPage()
-        self.response.out.write(page.header)
+        self.response.out.write(page.header % 'Simulation parameters')
         simulation_id = self.request.get('id')
         terrain_map = 0
         water_level = 2
