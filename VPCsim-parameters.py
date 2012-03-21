@@ -176,7 +176,9 @@ class GetParameters(webapp.RequestHandler):
     def get(self):
         data = db.GqlQuery("SELECT * FROM MeadowRecordObject WHERE id=:1",
                             self.request.get('id'))
-        self.response.out.write(data[0].to_xml())
+        if (data.count() == 1):
+            #if there are no records or more than one, something has gone wrong and we are better off NOT sending anything.
+            self.response.out.write(data[0].to_xml())
 
 
 class PlantPicturesPage(webapp.RequestHandler):
@@ -358,7 +360,7 @@ class ParametersFormPageThree(webapp.RequestHandler):
         if (submit_value == 'Submit parameters'):
             page = HtmlPage()
             self.response.out.write(page.header % 'Simulation parameters form')
-            self.id = str(int(time.time()))
+            self.id = str(int(time.time() * 1000.0))
             self.store_record()
             self.response.out.write(self.success_output_all_parameters % self.id)
             self.response.out.write(page.footer)
@@ -689,7 +691,7 @@ class ShowParametersPage(webapp.RequestHandler):
         if (simulation_id != 'default'):
             data = db.GqlQuery("SELECT * FROM MeadowRecordObject WHERE id=:1",
                             simulation_id)
-            if (data.count(1)):
+            if (data.count() == 1):
                 # The simulation ID is valid, display the parameters
                 data = data[0]
                 is_valid_id = True
@@ -699,14 +701,12 @@ class ShowParametersPage(webapp.RequestHandler):
                 plant_types = data.plant_types.split(',')
                 disturbance_level = data.disturbance_level
             else:
-                # There is no such simulation ID
+                # There is no such simulation ID (or there is more than one with that ID?)
                 is_valid_id = False
                 self.response.out.write(self.display_error % simulation_id)
         if (is_valid_id):
             self.response.out.write(self.display_parameters %
                                     (simulation_id,
-                                     terrain_map,
-                                     terrain_map,
                                      self.levels[water_level],
                                      self.levels[light_level],
                                      self.levels[temperature_level],
@@ -745,8 +745,6 @@ class ShowParametersPage(webapp.RequestHandler):
             <b>Simulation ID:</b> %s
         </p>
         <p>
-            <b>Terrain map:</b> %s<br>
-            <img src="/images/Terrain%s_map.jpg" height="100" width="100" /><br><br>
             <b>Water level:</b> %s<br>
             <b>Light level:</b> %s<br>
             <b>Temperature level:</b> %s<br>
