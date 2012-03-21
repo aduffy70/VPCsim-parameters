@@ -605,24 +605,28 @@ class RequestPlot(webapp.RequestHandler):
 
     def post(self):
         plot_type = self.request.get('plot_type')
+        simulation_id = self.request.get('simulation_id')
         if (plot_type == 'counts'):
             data_string = self.request.get('data_string')
-            self.request_counts_plot()
+            self.request_counts_plot(simulation_id, data_string)
         elif (plot_type == 'age'):
             data_string = self.request.get('data_string')
-            self.request_ages_plot()
+            self.request_ages_plot(simulation_id, data_string)
         elif (plot_type == 'biomass'):
-            self.request_biomass_plot()
+            self.request_biomass_plot(simulation_id, data_string)
         else:
             self.response.out.write("<html><body>Invalid plot type request</body></html>")
 
     plot_creation_code = """
         <html>
             <head>
-                <title>Plot</title>
+                <title>%s Plot</title>
                 <script type="text/javascript" src="static/lib/dygraph-combined.js" charset="utf-8"></script>
             </head>
             <body>
+                <div>
+                    <h3>Simulation ID: %s</h3>
+                </div>
                 <div id="graphdiv"></div>
                 <script type="text/javascript">
                     g = new Dygraph(
@@ -633,7 +637,7 @@ class RequestPlot(webapp.RequestHandler):
                             showRoller: true,
                             includeZero: true,
                             title: <b>%s</b>,
-                            xlabel: <b>time step</b>,
+                            xlabel: <b>year</b>,
                             ylabel: <b>%s</b>,
                             legend: "always",
                             labelsSeparateLines: false,
@@ -649,26 +653,30 @@ class RequestPlot(webapp.RequestHandler):
 
     # Debugging this can be nasty.  Keep this example of a good plot string for testing purposes.
     plot_data_string_TEST = """
-        "time step,Gaps,Alder,Fern,Cottonwood,Sagebrush,Pine\\n" +
+        "year,Gaps,Alder,Fern,Cottonwood,Sagebrush,Pine\\n" +
         "0,135,75,10,15,45,120\\n" + "1,163,25,45,34,23,110\\n" + "2,174,26,67,45,65,23\\n" + "3,120,18,75,25,64,98\\n" + "4,58,76,100,25,48,93\\n" + "5,138,70,97,34,35,26\\n" + "6,154,86,25,35,45,55\\n" + "7,220,32,22,51,43,32\\n" + "8,167,35,43,45,54,56\\n" + "9,120,38,64,46,75,57\\n" + "10,118,40,73,37,84,48\\n" + "11,55,65,10,70,110,90\\n" + "12,180,80,34,36,38,32\\n"
         """
 
-    def request_counts_plot(self):
-        plot_data_string = self.request.get("data_string")
+    def request_counts_plot(self, simulation_id, plot_data_string):
         self.response.out.write(self.plot_creation_code % (
+                                'Count',
+                                simulation_id,
                                 plot_data_string,
                                 'Counts by Species',
                                 '# of individuals'))
 
-    def request_ages_plot(self):
-        plot_data_string = self.request.get("data_string")
+    def request_ages_plot(self, simulation_id, plot_data_string):
         self.response.out.write(self.plot_creation_code % (
+                                'Age',
+                                simulation_id,
                                 plot_data_string,
                                 'Average Age by Species',
                                 'average age'))
 
-    def request_biomass_plot(self):
+    def request_biomass_plot(self, simulation_id, plot_data_string):
          self.response.out.write(self.plot_creation_code % (
+                                'Biomass',
+                                simulation_id,
                                 plot_data_string,
                                 'Biomass by Species',
                                 '% of total biomass'))
