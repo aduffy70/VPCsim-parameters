@@ -60,8 +60,7 @@ class MeadowRecordObject(db.Model):
     # CSV integers represeting the Unity3D Tree types for each of the 5 species in the community
     plant_types = db.StringProperty()
 
-    #Terrain, water, light, temperature, and disturbance levels
-    terrain = db.IntegerProperty()
+    #Water, light, temperature, and disturbance levels
     water_level = db.IntegerProperty()
     light_level = db.IntegerProperty()
     temperature_level = db.IntegerProperty()
@@ -84,21 +83,6 @@ class ParametersFormPageOne(webapp.RequestHandler):
 
     form = """
         <form enctype="multipart/form-data" action="/parametersform2" method="post">
-            <p>
-                <b>Terrain map:</b> Select the terrain<br>
-                <input type="radio" name="terrain" value="0" checked>
-                <img src="/images/Terrain0_map.jpg" height="100" width="100" />
-                &nbsp;&nbsp;
-                <input type="radio" name="terrain" value="1">
-                <img src="/images/Terrain1_map.jpg" height="100" width="100" />
-                &nbsp;&nbsp;
-                <input type="radio" name="terrain" value="2">
-                <img src="/images/Terrain2_map.jpg" height="100" width="100" />
-                &nbsp;&nbsp;
-                <input type="radio" name="terrain" value="3">
-                <img src="/images/Terrain3_map.jpg" height="100" width="100" />
-                &nbsp;&nbsp;
-            </p>
             <p>
                 <b>Select the water/moisture/precipitation level:</b><br>
                 <input type="radio" name="water_level" value="4">Highest<br>
@@ -141,7 +125,7 @@ class ParametersFormPageTwo(webapp.RequestHandler):
             if (i == 1):
                 link_option = self.form_plant_examples_link
             self.response.out.write(self.form_plant_data % (i, i, link_option))
-        self.response.out.write(self.form_hidden_fields % (self.request.get('terrain'), self.request.get('water_level'), self.request.get('light_level'), self.request.get('temperature_level')))
+        self.response.out.write(self.form_hidden_fields % (self.request.get('water_level'), self.request.get('light_level'), self.request.get('temperature_level')))
         self.response.out.write(self.form_submit_button)
         self.response.out.write(page.footer)
 
@@ -177,7 +161,6 @@ class ParametersFormPageTwo(webapp.RequestHandler):
     form_plant_examples_link = '<a href="/plants" target="_blank">View examples</a>'
 
     form_hidden_fields = """
-        <input type="hidden" name="terrain" value="%s">
         <input type="hidden" name="water_level" value="%s">
         <input type="hidden" name="light_level" value="%s">
         <input type="hidden" name="temperature_level" value="%s">
@@ -385,7 +368,6 @@ class ParametersFormPageThree(webapp.RequestHandler):
     def redraw_form(self, submit_value):
         page = HtmlPage()
         disturbance_level = self.request.get('disturbance_level')
-        terrain = self.request.get('terrain')
         starting_matrix = list(self.request.get('starting_matrix'))
         if (len(starting_matrix) == 0):
             #Set up the default starting matrix with all Rs
@@ -435,7 +417,7 @@ class ParametersFormPageThree(webapp.RequestHandler):
             self.response.out.write(self.form_ongoing_disturbance_selector % (
             'selected', '', '', '', ''))
         self.response.out.write(self.form_starting_matrix_map_label)
-        self.response.out.write(self.form_table_header % terrain)
+        self.response.out.write(self.form_table_header)
         for j in range(50):
             for i in range(50):
                 index = (j * 50) + i
@@ -455,10 +437,10 @@ class ParametersFormPageThree(webapp.RequestHandler):
         else:
             self.response.out.write('<br>')
         self.response.out.write(self.form_submit_button)
-        #Pass the list of selected cells, the current starting matrix, ongoing disturbance value and which terrain we are using.
+        #Pass the list of selected cells, the current starting matrix, and ongoing disturbance value.
         self.response.out.write(self.form_active_hidden_fields % (
-            ','.join(selected),''.join(starting_matrix),terrain))
-        #Pass the values from previous form pages (if we used those previous pages)
+            ','.join(selected),''.join(starting_matrix)))
+        #Pass the values from previous form pages
         self.response.out.write(self.form_passive_hidden_fields % (
             self.request.get('water_level'),
             self.request.get('light_level'),
@@ -494,8 +476,7 @@ class ParametersFormPageThree(webapp.RequestHandler):
         record = MeadowRecordObject()
         # Store a timestamp as the record id
         record.id = self.id
-        # Store the terrain, water_level, light_level, and temperature_level, and list of plant_species.
-        record.terrain = int(self.request.get('terrain'))
+        # Store the water_level, light_level, and temperature_level, and list of plant_species.
         record.water_level = int(self.request.get('water_level'))
         record.light_level = int(self.request.get('light_level'))
         record.temperature_level = int(self.request.get('temperature_level'))
@@ -527,7 +508,7 @@ class ParametersFormPageThree(webapp.RequestHandler):
             </span>
         </p>
         <p>
-            To run the simulation use the following simulation code.<br>Write it down - you will need it when you report your results.
+            To run the simulation use the following simulation code.<br><b>Write it down</b> - you will need it when you report your results.
         </p>
         <p>
             <blockquote style="font-size: larger;">
@@ -555,7 +536,7 @@ class ParametersFormPageThree(webapp.RequestHandler):
         <b>Click on the map to select one or more cells to set the starting status:</b>
         """
 
-    form_table_header = '<table background="/images/Terrain%s_map.jpg"><tbody><td>'
+    form_table_header = '<table background="/images/Terrain0_map.jpg"><tbody><td>'
 
     form_button = '<input type="image" name="aaa%s" src="/images/%sbutton.png" style="width: 10px; height=10px;">'
 
@@ -598,7 +579,6 @@ class ParametersFormPageThree(webapp.RequestHandler):
     form_active_hidden_fields = """
         <input type="hidden" name="selected" value="%s">
         <input type="hidden" name="starting_matrix" value="%s">
-        <input type="hidden" name="terrain" value="%s">
         """
 
     form_passive_hidden_fields = """
@@ -665,6 +645,7 @@ class RequestPlot(webapp.RequestHandler):
         </html>
         """
 
+    # Debugging this can be nasty.  Keep this example of a good plot string for testing purposes.
     plot_data_string_TEST = """
         "time step,Gaps,Alder,Fern,Cottonwood,Sagebrush,Pine\\n" +
         "0,135,75,10,15,45,120\\n" + "1,163,25,45,34,23,110\\n" + "2,174,26,67,45,65,23\\n" + "3,120,18,75,25,64,98\\n" + "4,58,76,100,25,48,93\\n" + "5,138,70,97,34,35,26\\n" + "6,154,86,25,35,45,55\\n" + "7,220,32,22,51,43,32\\n" + "8,167,35,43,45,54,56\\n" + "9,120,38,64,46,75,57\\n" + "10,118,40,73,37,84,48\\n" + "11,55,65,10,70,110,90\\n" + "12,180,80,34,36,38,32\\n"
@@ -699,7 +680,6 @@ class ShowParametersPage(webapp.RequestHandler):
         page = HtmlPage()
         self.response.out.write(page.header % 'Simulation parameters')
         simulation_id = self.request.get('id')
-        terrain_map = 0
         water_level = 2
         light_level = 2
         temperature_level = 2
@@ -713,7 +693,6 @@ class ShowParametersPage(webapp.RequestHandler):
                 # The simulation ID is valid, display the parameters
                 data = data[0]
                 is_valid_id = True
-                terrain_map = data.terrain
                 water_level = data.water_level
                 light_level = data.light_level
                 temperature_level = data.temperature_level
