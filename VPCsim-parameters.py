@@ -121,10 +121,14 @@ class ParametersFormPageTwo(webapp.RequestHandler):
         self.response.out.write(page.header % 'Simulation parameters form')
         self.response.out.write(self.form_header)
         for i in range(1,6):
+            default_selection = ['', '', '', '', '']
+            default_selection[i - 1] = 'selected="selected"'
             link_option = ''
             if (i == 1):
                 link_option = self.form_plant_examples_link
-            self.response.out.write(self.form_plant_data % (i, i, link_option))
+            self.response.out.write(self.form_plant_data % (i, i, default_selection[0], default_selection[1],
+                                                            default_selection[2], default_selection[3],
+                                                            default_selection[4], link_option))
         self.response.out.write(self.form_hidden_fields % (self.request.get('water_level'), self.request.get('light_level'), self.request.get('temperature_level')))
         self.response.out.write(self.form_submit_button)
         self.response.out.write(page.footer)
@@ -141,19 +145,19 @@ class ParametersFormPageTwo(webapp.RequestHandler):
             &nbsp;&nbsp;Species %s
             <select name="plant_code_%s">
                 <option value = "0">Alder</option>
-                <option value = "1">Aspen</option>
+                <option value = "1" %s>Aspen</option>
                 <option value = "2">Starthistle</option>
                 <option value = "3">Juniper</option>
                 <option value = "4">Serviceberry</option>
                 <option value = "5">Sagebrush</option>
                 <option value = "6">Sumac</option>
-                <option value = "12">Wildrose</option>
-                <option value = "13">Fern</option>
-                <option value = "14">Maple</option>
-                <option value = "15">Elderberry</option>
-                <option value = "17">Pine</option>
-                <option value = "18">Cottonwood</option>
-                <option value = "19">Willow</option>
+                <option value = "7">Wildrose</option>
+                <option value = "8" %s>Fern</option>
+                <option value = "9" %s>Maple</option>
+                <option value = "10">Elderberry</option>
+                <option value = "11" %s>Pine</option>
+                <option value = "12">Cottonwood</option>
+                <option value = "13" %s>Willow</option>
             </select>
             %s
         """
@@ -188,23 +192,19 @@ class PlantPicturesPage(webapp.RequestHandler):
     def get(self):
         page = HtmlPage()
         self.response.out.write(page.header % 'Species info')
-        for i in range(20):
-            #Temporary- skip the plant prototypes that need to be deleted.  I don't want to
-            #actually delete them yet because it would change the index numbers in the various
-            #lists and cause problems with the Unity module.
-            if (i not in [7, 8, 9, 10, 11, 16]):
-                self.response.out.write(self.plant_info_display % (self.common_names[i],
-                                        self.latin_binomials[i],
-                                        self.common_names[i],
-                                        self.lifespans[i],
-                                        self.water_levels[i],
-                                        self.light_levels[i],
-                                        self.temperature_levels[i],
-                                        self.altitudes[i],
-                                        self.colonizing_levels[i],
-                                        self.replaces_lists[i],
-                                        self.replaced_by_lists[i],
-                                        self.other_notes[i]))
+        for i in range(14):
+            self.response.out.write(self.plant_info_display % (self.common_names[i],
+                                    self.latin_binomials[i],
+                                    self.common_names[i],
+                                    self.lifespans[i],
+                                    self.water_levels[i],
+                                    self.light_levels[i],
+                                    self.temperature_levels[i],
+                                    self.altitudes[i],
+                                    self.colonizing_levels[i],
+                                    self.replaces_lists[i],
+                                    self.replaced_by_lists[i],
+                                    self.other_notes[i]))
         self.response.out.write(page.footer)
 
     plant_info_display = """
@@ -229,126 +229,170 @@ class PlantPicturesPage(webapp.RequestHandler):
         </p>
         """
 
-    common_names = ['Alder', 'Aspen',
-                    'Starthistle', 'Juniper',
-                    'Serviceberry', 'Sagebrush',
-                    'Sumac', 'Obsolete1',
-                    'Obsolete2', 'Obsolete3',
-                    'Obsolete4', 'Obsolete5',
-                    'Wildrose', 'Fern',
-                    'Maple', 'Elderberry',
-                    'Obsolete6', 'Pine',
-                    'Cottonwood', 'Willow']
+    common_names = ['Alder',
+                    'Aspen',
+                    'Starthistle',
+                    'Juniper',
+                    'Serviceberry',
+                    'Sagebrush',
+                    'Sumac',
+                    'Wildrose',
+                    'Fern',
+                    'Maple',
+                    'Elderberry',
+                    'Pine',
+                    'Cottonwood',
+                    'Willow']
 
-    latin_binomials = ['Alnus tenuifolia', 'Populus tremuloides',
-                       'Centaurea solstitialis', 'Juniperus scopulorum',
-                       'Amelanchier utahensis', 'Artemesia tridentata',
-                       'Rhus glabra', 'Obsolete1',
-                       'Obsolete2', 'Obsolete3',
-                       'Obsolete4', 'Obsolete5',
-                       'Rosa woodsii', 'Pteridium aquilinum',
-                       'Acer grandidentatum', 'Sambucus nigra',
-                       'Obsolete6', 'Pinus ponderosa',
-                       'Populus trichocarpa', 'Salix fragilis']
+    latin_binomials = [ 'Alnus tenuifolia',
+                        'Populus tremuloides',
+                        'Centaurea solstitialis',
+                        'Juniperus scopulorum',
+                        'Amelanchier utahensis',
+                        'Artemesia tridentata',
+                        'Rhus glabra',
+                        'Rosa woodsii',
+                        'Pteridium aquilinum',
+                        'Acer grandidentatum',
+                        'Sambucus nigra',
+                        'Pinus ponderosa',
+                        'Populus trichocarpa',
+                        'Salix fragilis']
 
-    water_levels = ['N', 'N',
-                    'N', 'N',
-                    'N', 'N',
-                    'N', 'N',
-                    'N', 'N',
-                    'N', 'N',
-                    'H', 'N',
-                    'N', 'N',
-                    'N', 'N',
-                    'N', 'N']
+    water_levels = ['N',
+                    'N',
+                    'N',
+                    'N',
+                    'N',
+                    'N',
+                    'N',
+                    'H',
+                    'N',
+                    'N',
+                    'N',
+                    'N',
+                    'N',
+                    'N']
 
-    light_levels = ['N', 'N',
-                    'N', 'N',
-                    'N', 'N',
-                    'N', 'N',
-                    'N', 'N',
-                    'N', 'N',
-                    'N', 'N',
-                    'N', 'N',
-                    'N', 'N',
-                    'N', 'N']
+    light_levels = ['N',
+                    'N',
+                    'N',
+                    'N',
+                    'N',
+                    'N',
+                    'N',
+                    'N',
+                    'N',
+                    'N',
+                    'N',
+                    'N',
+                    'N',
+                    'N']
 
-    temperature_levels = ['N', 'N',
-                          'N', 'N',
-                          'N', 'N',
-                          'N', 'N',
-                          'N', 'N',
-                          'N', 'N',
-                          'N', 'N',
-                          'N', 'N',
-                          'N', 'N',
-                          'N', 'N']
+    temperature_levels = ['N',
+                          'N',
+                          'N',
+                          'N',
+                          'N',
+                          'N',
+                          'N',
+                          'N',
+                          'N',
+                          'N',
+                          'N',
+                          'N',
+                          'N',
+                          'N']
 
-    altitudes = ['N', 'N',
-                 'N', 'N',
-                 'N', 'N',
-                 'N', 'N',
-                 'N', 'N',
-                 'N', 'N',
-                 'N', 'N',
-                 'N', 'N',
-                 'N', 'N',
-                 'N', 'N']
+    altitudes = [   'N',
+                    'N',
+                    'N',
+                    'N',
+                    'N',
+                    'N',
+                    'N',
+                    'N',
+                    'N',
+                    'N',
+                    'N',
+                    'N',
+                    'N',
+                    'N']
 
-    lifespans = ['M', 'M',
-                 'M', 'M',
-                 'M', 'M',
-                 'M', 'M',
-                 'M', 'M',
-                 'M', 'M',
-                 'M', 'M',
-                 'M', 'M',
-                 'M', 'M',
-                 'M', 'M']
+    lifespans = [   'M',
+                    'M',
+                    'M',
+                    'M',
+                    'M',
+                    'M',
+                    'M',
+                    'M',
+                    'M',
+                    'M',
+                    'M',
+                    'M',
+                    'M',
+                    'M']
 
-    colonizing_levels = ['N', 'N',
-                         'Y', 'N',
-                         'N', 'N',
-                         'N', 'N',
-                         'N', 'N',
-                         'N', 'N',
-                         'N', 'N',
-                         'N', 'N',
-                         'N', 'N',
-                         'N', 'N']
+    colonizing_levels = [   'N',
+                            'N',
+                            'Y',
+                            'N',
+                            'N',
+                            'N',
+                            'N',
+                            'N',
+                            'N',
+                            'N',
+                            'N',
+                            'N',
+                            'N',
+                            'N']
 
-    replaces_lists = ['A, list, of, plants', 'A, list, of, plants',
-                      'A, list, of, plants', 'A, list, of, plants',
-                      'A, list, of, plants', 'A, list, of, plants',
-                      'A, list, of, plants', 'A, list, of, plants',
-                      'A, list, of, plants', 'A, list, of, plants',
-                      'A, list, of, plants', 'A, list, of, plants',
-                      'A, list, of, plants', 'A, list, of, plants',
-                      'A, list, of, plants', 'A, list, of, plants',
-                      'A, list, of, plants', 'A, list, of, plants',
-                      'A, list, of, plants', 'A, list, of, plants']
+    replaces_lists = [  'A, list, of, plants',
+                        'A, list, of, plants',
+                        'A, list, of, plants',
+                        'A, list, of, plants',
+                        'A, list, of, plants',
+                        'A, list, of, plants',
+                        'A, list, of, plants',
+                        'A, list, of, plants',
+                        'A, list, of, plants',
+                        'A, list, of, plants',
+                        'A, list, of, plants',
+                        'A, list, of, plants',
+                        'A, list, of, plants',
+                        'A, list, of, plants']
 
-    replaced_by_lists = ['A, list, of, plants', 'A, list, of, plants',
-                         'A, list, of, plants', 'A, list, of, plants',
-                         'A, list, of, plants', 'A, list, of, plants',
-                         'A, list, of, plants', 'A, list, of, plants',
-                         'A, list, of, plants', 'A, list, of, plants',
-                         'A, list, of, plants', 'A, list, of, plants',
-                         'A, list, of, plants', 'A, list, of, plants',
-                         'A, list, of, plants', 'A, list, of, plants',
-                         'A, list, of, plants', 'A, list, of, plants',
-                         'A, list, of, plants', 'A, list, of, plants']
+    replaced_by_lists = ['A, list, of, plants',
+                         'A, list, of, plants',
+                         'A, list, of, plants',
+                         'A, list, of, plants',
+                         'A, list, of, plants',
+                         'A, list, of, plants',
+                         'A, list, of, plants',
+                         'A, list, of, plants',
+                         'A, list, of, plants',
+                         'A, list, of, plants',
+                         'A, list, of, plants',
+                         'A, list, of, plants',
+                         'A, list, of, plants',
+                         'A, list, of, plants']
 
-    other_notes = ['Some, relevant, facts', 'Some, relevant, facts',
-                    'Invasive species', '',
-                    'Some, relevant, facts', 'Some, relevant, facts',
-                    'Some, relevant, facts', 'Some, relevant, facts',
-                    'Some, relevant, facts', 'Some, relevant, facts',
-                    'Some, relevant, facts', 'Some, relevant, facts',
-                    'Some, relevant, facts', 'Some, relevant, facts',
-                    'Some, relevant, facts', 'Some, relevant, facts',
-                    'Some, relevant, facts', 'Some, relevant, facts',
-                    'Some, relevant, facts', 'Some, relevant, facts']
+    other_notes = [ 'Some, relevant, facts',
+                    'Some, relevant, facts',
+                    'Invasive species',
+                    'Some, relevant, facts',
+                    'Some, relevant, facts',
+                    'Some, relevant, facts',
+                    'Some, relevant, facts',
+                    'Some, relevant, facts',
+                    'Some, relevant, facts',
+                    'Some, relevant, facts',
+                    'Some, relevant, facts',
+                    'Some, relevant, facts',
+                    'Some, relevant, facts',
+                    'Some, relevant, facts']
 
 
 class ParametersFormPageThree(webapp.RequestHandler):
@@ -694,7 +738,8 @@ class ShowParametersPage(webapp.RequestHandler):
         light_level = 2
         temperature_level = 2
         disturbance_level = 0
-        plant_types = [1, 13, 14, 17, 19]
+        #This should match the default plant types in the Unity Module
+        plant_types = [1, 8, 9, 11, 13]
         is_valid_id = True
         if (simulation_id != 'default'):
             data = db.GqlQuery("SELECT * FROM MeadowRecordObject WHERE id=:1",
@@ -736,16 +781,20 @@ class ShowParametersPage(webapp.RequestHandler):
     #Conversions from the stored level integer values to human readable values
     levels = ["Lowest", "Lower", "Normal", "Higher", "Highest"]
     disturbance_levels = ["None", "Very Low","Low", "High", "Very High"]
-    plant_names = ['Alder', 'Aspen',
-                    'Starthistle', 'Juniper',
-                    'Serviceberry', 'Sagebrush',
-                    'Sumac', 'Obsolete1',
-                    'Obsolete2', 'Obsolete3',
-                    'Obsolete4', 'Obsolete5',
-                    'Wildrose', 'Fern',
-                    'Maple', 'Elderberry',
-                    'Obsolete6', 'Pine',
-                    'Cottonwood', 'Willow']
+    plant_names = [ 'Alder',
+                    'Aspen',
+                    'Starthistle',
+                    'Juniper',
+                    'Serviceberry',
+                    'Sagebrush',
+                    'Sumac',
+                    'Wildrose',
+                    'Fern',
+                    'Maple',
+                    'Elderberry',
+                    'Pine',
+                    'Cottonwood',
+                    'Willow']
 
     display_parameters = """
         <h2>Simulation Parameters</h2>
