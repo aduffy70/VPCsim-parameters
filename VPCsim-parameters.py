@@ -657,6 +657,7 @@ class RequestPlot(webapp.RequestHandler):
             data_string = self.request.get('data_string')
             self.request_ages_plot(simulation_id, data_string)
         elif (plot_type == 'biomass'):
+            data_string = self.request.get('data_string')
             self.request_biomass_plot(simulation_id, data_string)
         else:
             self.response.out.write("<html><body>Invalid plot type request</body></html>")
