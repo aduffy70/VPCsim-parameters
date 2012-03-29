@@ -840,8 +840,10 @@ class ShowParametersPage(webapp.RequestHandler):
             for j in range(50):
                 for i in range(50):
                     index = (j * 50) + i
-                    image = starting_matrix[index]
-                    #image = 'R'
+                    if (simulation_id != 'default'):
+                        image = starting_matrix[index]
+                    else:
+                        image = 'R'
                     self.response.out.write(self.form_button % image)
                 if (j != 49):
                     self.response.out.write('<br>')
