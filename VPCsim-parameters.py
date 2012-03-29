@@ -619,9 +619,7 @@ class ParametersFormPageThree(webapp.RequestHandler):
 
     form_table_header = '<table background="/images/Terrain0_map.jpg"><tbody><td>'
 
-    form_button = """
-        <input type="image" name="aaa%s" src="/images/%sbutton.png" style="width: 10px; height=10px;">
-        """
+    form_button = '<input type="image" name="aaa%s" src="/images/%sbutton.png" style="width: 10px; height=10px;">'
 
     form_table_footer = '</td></tbody></table>'
 
