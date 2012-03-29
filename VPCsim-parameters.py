@@ -25,7 +25,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 """
 
-import cgi
+#import cgi
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp.util import run_wsgi_app
 from google.appengine.ext import db
@@ -49,204 +49,10 @@ class HtmlPage():
 
     footer = '</body></html>'
 
-
-class MeadowRecordObject(db.Model):
+class SpeciesInfo():
     """
-    Record class representing all the parameters to run a community simulation.
+    Class containing species info lookup tables.
     """
-    # Timestamp id for this record
-    id = db.StringProperty()
-
-    # CSV integers represeting the Unity3D Tree types for each of the 5 species in the community
-    plant_types = db.StringProperty()
-
-    #Water, light, temperature, and disturbance levels
-    water_level = db.IntegerProperty()
-    light_level = db.IntegerProperty()
-    temperature_level = db.IntegerProperty()
-    disturbance_level = db.IntegerProperty()
-
-    #Matrix representing the starting values for each position in the matrix
-    #(R=random, N=disturbance, 0=gap, 1-5=plant types)
-    starting_matrix = db.TextProperty()
-
-
-class ParametersFormPageOne(webapp.RequestHandler):
-    """
-    First page of the three page community parameters form.
-    Accessed by the user by url or hyperlink. Controls terrain
-    and environment parameters (and includes some hidden matrix parameters).
-    """
-    def get(self):
-        page = HtmlPage()
-        self.response.out.write(page.header % 'Simulation parameters form')
-        self.response.out.write(page.instructions)
-        self.response.out.write(self.form)
-        self.response.out.write(page.footer)
-
-    form = """
-        <form enctype="multipart/form-data" action="/parametersform2" method="post">
-            <p>
-                <b>Select the water/moisture/precipitation level:</b><br>
-                <input type="radio" name="water_level" value="4">Highest<br>
-                <input type="radio" name="water_level" value="3">Higher<br>
-                <input type="radio" name="water_level" value="2" checked>Normal<br>
-                <input type="radio" name="water_level" value="1">Lower<br>
-                <input type="radio" name="water_level" value="0">Lowest<br>
-            </p>
-            <p>
-                <b>Select the light level:</b><br>
-                <input type="radio" name="light_level" value="4">Highest<br>
-                <input type="radio" name="light_level" value="3">Higher<br>
-                <input type="radio" name="light_level" value="2" checked>Normal<br>
-                <input type="radio" name="light_level" value="1">Lower<br>
-                <input type="radio" name="light_level" value="0">Lowest<br>
-            </p>
-            <p>
-                <b>Select the temperature level:</b><br>
-                <input type="radio" name="temperature_level" value="4">Highest<br>
-                <input type="radio" name="temperature_level" value="3">Higher<br>
-                <input type="radio" name="temperature_level" value="2" checked>Normal<br>
-                <input type="radio" name="temperature_level" value="1">Lower<br>
-                <input type="radio" name="temperature_level" value="0">Lowest<br>
-            </p>
-            <input type="submit" value="Continue...">
-        </form>
-        """
-
-
-class ParametersFormPageTwo(webapp.RequestHandler):
-    """
-    Second page of the three page community parameters form.
-    Accessed by the user by submitting ParametersFormPageOne.
-    Controls plant settings
-    """
-    def post(self):
-        page = HtmlPage()
-        self.response.out.write(page.header % 'Simulation parameters form')
-        self.response.out.write(self.form_header)
-        for i in range(1,6):
-            default_selection = ['', '', '', '', '']
-            default_selection[i - 1] = 'selected="selected"'
-            link_option = ''
-            none_option = self.form_none_option
-            if (i == 1):
-                link_option = self.form_plant_examples_link
-                none_option = ''
-            self.response.out.write(self.form_plant_data %
-                                    (i, i, none_option,
-                                     default_selection[0], default_selection[1],
-                                     default_selection[2], default_selection[3],
-                                     default_selection[4], link_option))
-        self.response.out.write(self.form_hidden_fields %
-                                (self.request.get('water_level'),
-                                 self.request.get('light_level'),
-                                 self.request.get('temperature_level')))
-        self.response.out.write(self.form_submit_button)
-        self.response.out.write(page.footer)
-
-    form_header = """
-        <form enctype="multipart/form-data" action="/parametersform3" method="post">
-        <p>
-            <b>Select 5 plant species to include in the community:</b>
-        </p>
-        """
-
-    form_plant_data = """
-        <p>
-            &nbsp;&nbsp;Species %s
-            <select name="plant_code_%s">
-                %s
-                <option value = "0">Alder</option>
-                <option value = "1" %s>Aspen</option>
-                <option value = "2">Starthistle</option>
-                <option value = "3">Juniper</option>
-                <option value = "4">Serviceberry</option>
-                <option value = "5">Sagebrush</option>
-                <option value = "6">Sumac</option>
-                <option value = "7">Wildrose</option>
-                <option value = "8" %s>Fern</option>
-                <option value = "9" %s>Maple</option>
-                <option value = "10">Elderberry</option>
-                <option value = "11" %s>Pine</option>
-                <option value = "12">Cottonwood</option>
-                <option value = "13" %s>Willow</option>
-            </select>
-            %s
-        """
-
-    form_none_option = """<option value = "-1">**None**</option>"""
-
-    form_plant_examples_link = '<a href="/plants" target="_blank">View examples</a>'
-
-    form_hidden_fields = """
-        <input type="hidden" name="water_level" value="%s">
-        <input type="hidden" name="light_level" value="%s">
-        <input type="hidden" name="temperature_level" value="%s">
-        """
-
-    form_submit_button = '</p><input type="submit" name="next" value="Continue..."></form>'
-
-
-class GetParameters(webapp.RequestHandler):
-    """
-    Returns the community record with a particular timestamp as XML.
-    Accessed by the vMeadow opensim module.
-    """
-    def get(self):
-        data = db.GqlQuery("SELECT * FROM MeadowRecordObject WHERE id=:1",
-                            self.request.get('id'))
-        if (data.count() == 1):
-            #if there are no records or more than one, something has gone wrong and
-            #we are better off NOT sending anything.
-            self.response.out.write(data[0].to_xml())
-
-
-class PlantPicturesPage(webapp.RequestHandler):
-    """
-    Displays a page with photos of the different plant types in a new browser window.
-    Accessed through links on the SetupMatrix page form.
-    """
-    def get(self):
-        page = HtmlPage()
-        self.response.out.write(page.header % 'Species info')
-        for i in range(14):
-            self.response.out.write(self.plant_info_display % (self.common_names[i],
-                                    self.latin_binomials[i],
-                                    self.common_names[i],
-                                    self.lifespans[i],
-                                    self.water_levels[i],
-                                    self.light_levels[i],
-                                    self.temperature_levels[i],
-                                    self.altitudes[i],
-                                    self.colonizing_levels[i],
-                                    self.replaces_lists[i],
-                                    self.replaced_by_lists[i],
-                                    self.other_notes[i]))
-        self.response.out.write(page.footer)
-
-    plant_info_display = """
-        <p>
-            <big><b>%s</b></big> (<i>%s</i>)
-            <table border="0"><tbody><tr valign="top">
-                <td>
-                    <img src="/images/%s.png" height="250" width="300"/>
-                </td>
-                <td>
-                    <b>Lifespan:</b> %s<br><br>
-                    <b>Water:</b> %s<br>
-                    <b>Light:</b> %s<br>
-                    <b>Temp:</b> %s<br>
-                    <b>Altitude:</b> %s<br><br>
-                    <b>Colonizer:</b> %s<br>
-                    <b>Outcompetes:</b> %s<br>
-                    <b>Outcompeted by:</b> %s<br><br>
-                    <b>Other notes:</b> %s
-                </td>
-            </tr></tbody></table>
-        </p>
-        """
-
     common_names = ['Alder',
                     'Aspen',
                     'Starthistle',
@@ -277,6 +83,8 @@ class PlantPicturesPage(webapp.RequestHandler):
                         'Populus trichocarpa',
                         'Salix fragilis']
 
+    #These levels all need to correspond to the values used in the Unity module.
+    #The values shown here are only used for display purposes.
     water_levels = ['N',
                     'N',
                     'N',
@@ -412,6 +220,208 @@ class PlantPicturesPage(webapp.RequestHandler):
                     'Some, relevant, facts',
                     'Some, relevant, facts']
 
+class MeadowRecordObject(db.Model):
+    """
+    Record class representing all the parameters to run a community simulation.
+    """
+    # Timestamp id for this record
+    id = db.StringProperty()
+
+    # CSV integers represeting the Unity3D Tree types for each of the (up to) 5 species in the community
+    plant_types = db.StringProperty()
+
+    #Water, light, temperature, and disturbance levels
+    water_level = db.IntegerProperty()
+    light_level = db.IntegerProperty()
+    temperature_level = db.IntegerProperty()
+    disturbance_level = db.IntegerProperty()
+
+    #50x50 matrix representing the starting values for each position in the matrix
+    #(R=random, N=disturbance, 0=gap, 1-5=plant types)
+    starting_matrix = db.TextProperty()
+
+
+class ParametersFormPageOne(webapp.RequestHandler):
+    """
+    First page of the three page community parameters form.
+    Accessed by the user by url or hyperlink. Controls terrain
+    and environment parameters (and includes some hidden matrix parameters).
+    """
+    def get(self):
+        page = HtmlPage()
+        self.response.out.write(page.header % 'Simulation parameters form')
+        self.response.out.write(page.instructions)
+        self.response.out.write(self.form)
+        self.response.out.write(page.footer)
+
+    form = """
+        <form enctype="multipart/form-data" action="/parametersform2" method="post">
+            <p>
+                <b>Select the water/moisture/precipitation level:</b><br>
+                <input type="radio" name="water_level" value="4">Highest<br>
+                <input type="radio" name="water_level" value="3">Higher<br>
+                <input type="radio" name="water_level" value="2" checked>Normal<br>
+                <input type="radio" name="water_level" value="1">Lower<br>
+                <input type="radio" name="water_level" value="0">Lowest<br>
+            </p>
+            <p>
+                <b>Select the light level:</b><br>
+                <input type="radio" name="light_level" value="4">Highest<br>
+                <input type="radio" name="light_level" value="3">Higher<br>
+                <input type="radio" name="light_level" value="2" checked>Normal<br>
+                <input type="radio" name="light_level" value="1">Lower<br>
+                <input type="radio" name="light_level" value="0">Lowest<br>
+            </p>
+            <p>
+                <b>Select the temperature level:</b><br>
+                <input type="radio" name="temperature_level" value="4">Highest<br>
+                <input type="radio" name="temperature_level" value="3">Higher<br>
+                <input type="radio" name="temperature_level" value="2" checked>Normal<br>
+                <input type="radio" name="temperature_level" value="1">Lower<br>
+                <input type="radio" name="temperature_level" value="0">Lowest<br>
+            </p>
+            <input type="submit" value="Continue...">
+        </form>
+        """
+
+
+class ParametersFormPageTwo(webapp.RequestHandler):
+    """
+    Second page of the three page community parameters form.
+    Accessed by the user by submitting ParametersFormPageOne.
+    Controls plant settings
+    """
+    def post(self):
+        page = HtmlPage()
+        info = SpeciesInfo()
+        self.response.out.write(page.header % 'Simulation parameters form')
+        self.response.out.write(self.form_header)
+        for i in range(1,6):
+            default_selection = ['', '', '', '', '']
+            default_selection[i - 1] = 'selected="selected"'
+            link_option = ''
+            none_option = self.form_none_option
+            if (i == 1):
+                link_option = self.form_plant_examples_link
+                none_option = ''
+            self.response.out.write(self.form_plant_data %
+                                    (i, i, none_option, info.common_names[0], default_selection[0],
+                                     info.common_names[1], info.common_names[2], info.common_names[3],
+                                     info.common_names[4], info.common_names[5], info.common_names[6],
+                                     info.common_names[7], default_selection[1], info.common_names[8],
+                                     default_selection[2], info.common_names[9], info.common_names[10],
+                                     default_selection[3], info.common_names[11], info.common_names[12],
+                                     default_selection[4], info.common_names[13], link_option))
+        self.response.out.write(self.form_hidden_fields %
+                                (self.request.get('water_level'),
+                                 self.request.get('light_level'),
+                                 self.request.get('temperature_level')))
+        self.response.out.write(self.form_submit_button)
+        self.response.out.write(page.footer)
+
+    form_header = """
+        <form enctype="multipart/form-data" action="/parametersform3" method="post">
+        <p>
+            <b>Select 5 plant species to include in the community:</b>
+        </p>
+        """
+
+    form_plant_data = """
+        <p>
+            &nbsp;&nbsp;Species %s
+            <select name="plant_code_%s">
+                %s
+                <option value = "0">%s</option>
+                <option value = "1" %s>%s</option>
+                <option value = "2">%s</option>
+                <option value = "3">%s</option>
+                <option value = "4">%s</option>
+                <option value = "5">%s</option>
+                <option value = "6">%s</option>
+                <option value = "7">%s</option>
+                <option value = "8" %s>%s</option>
+                <option value = "9" %s>%s</option>
+                <option value = "10">%s</option>
+                <option value = "11" %s>%s</option>
+                <option value = "12">%s</option>
+                <option value = "13" %s>%s</option>
+            </select>
+            %s
+        """
+
+    form_none_option = """<option value = "-1">**None**</option>"""
+
+    form_plant_examples_link = '<a href="/plants" target="_blank">View examples</a>'
+
+    form_hidden_fields = """
+        <input type="hidden" name="water_level" value="%s">
+        <input type="hidden" name="light_level" value="%s">
+        <input type="hidden" name="temperature_level" value="%s">
+        """
+
+    form_submit_button = '</p><input type="submit" name="next" value="Continue..."></form>'
+
+
+class GetParameters(webapp.RequestHandler):
+    """
+    Returns the community record with a particular timestamp as XML.
+    Accessed by the vMeadow opensim module.
+    """
+    def get(self):
+        data = db.GqlQuery("SELECT * FROM MeadowRecordObject WHERE id=:1",
+                            self.request.get('id'))
+        if (data.count() == 1):
+            #if there are no records or more than one, something has gone wrong and
+            #we are better off NOT sending anything.
+            self.response.out.write(data[0].to_xml())
+
+
+class PlantPicturesPage(webapp.RequestHandler):
+    """
+    Displays a page with photos of the different plant types in a new browser window.
+    Accessed through links on the SetupMatrix page form.
+    """
+    def get(self):
+        page = HtmlPage()
+        info = SpeciesInfo()
+        self.response.out.write(page.header % 'Species info')
+        for i in range(14):
+            self.response.out.write(self.plant_info_display % (info.common_names[i],
+                                    info.latin_binomials[i],
+                                    info.common_names[i],
+                                    info.lifespans[i],
+                                    info.water_levels[i],
+                                    info.light_levels[i],
+                                    info.temperature_levels[i],
+                                    info.altitudes[i],
+                                    info.colonizing_levels[i],
+                                    info.replaces_lists[i],
+                                    info.replaced_by_lists[i],
+                                    info.other_notes[i]))
+        self.response.out.write(page.footer)
+
+    plant_info_display = """
+        <p>
+            <big><b>%s</b></big> (<i>%s</i>)
+            <table border="0"><tbody><tr valign="top">
+                <td>
+                    <img src="/images/%s.png" height="250" width="300"/>
+                </td>
+                <td>
+                    <b>Lifespan:</b> %s<br><br>
+                    <b>Water:</b> %s<br>
+                    <b>Light:</b> %s<br>
+                    <b>Temp:</b> %s<br>
+                    <b>Altitude:</b> %s<br><br>
+                    <b>Colonizer:</b> %s<br>
+                    <b>Outcompetes:</b> %s<br>
+                    <b>Outcompeted by:</b> %s<br><br>
+                    <b>Other notes:</b> %s
+                </td>
+            </tr></tbody></table>
+        </p>
+        """
+
 
 class ParametersFormPageThree(webapp.RequestHandler):
     """
@@ -434,6 +444,7 @@ class ParametersFormPageThree(webapp.RequestHandler):
 
     def redraw_form(self, submit_value):
         page = HtmlPage()
+        info = SpeciesInfo()
         disturbance_level = self.request.get('disturbance_level')
         starting_matrix = list(self.request.get('starting_matrix'))
         if (len(starting_matrix) == 0):
@@ -506,7 +517,7 @@ class ParametersFormPageThree(webapp.RequestHandler):
             self.response.out.write(self.form_cell_value_selector_header)
             for i in range(0,plant_codes_count):
                 self.response.out.write(self.form_cell_value_selector_option %
-                                        (i+1, self.common_names[int(plant_codes_list[i])]))
+                                        (i+1, info.common_names[int(plant_codes_list[i])]))
             self.response.out.write(self.form_cell_value_selector_footer)
             self.response.out.write(self.form_assign_cells_button)
             if (len(selected) == 2):
@@ -666,21 +677,6 @@ class ParametersFormPageThree(webapp.RequestHandler):
         """
 
     form_footer = '</form>'
-
-    common_names = ['Alder',
-                    'Aspen',
-                    'Starthistle',
-                    'Juniper',
-                    'Serviceberry',
-                    'Sagebrush',
-                    'Sumac',
-                    'Wildrose',
-                    'Fern',
-                    'Maple',
-                    'Elderberry',
-                    'Pine',
-                    'Cottonwood',
-                    'Willow']
 
 class RequestPlot(webapp.RequestHandler):
     """
