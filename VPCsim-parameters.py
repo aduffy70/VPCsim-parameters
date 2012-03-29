@@ -66,13 +66,16 @@ class MeadowRecordObject(db.Model):
     temperature_level = db.IntegerProperty()
     disturbance_level = db.IntegerProperty()
 
-    #Matrix representing the starting values for each position in the matrix (R=random, N=disturbance, 0=gap, 1-5=plant types)
+    #Matrix representing the starting values for each position in the matrix
+    #(R=random, N=disturbance, 0=gap, 1-5=plant types)
     starting_matrix = db.TextProperty()
 
 
 class ParametersFormPageOne(webapp.RequestHandler):
     """
-    First page of the three page community parameters form.  Accessed by the user by url or hyperlink. Controls terrain and environment parameters (and includes some hidden matrix parameters).
+    First page of the three page community parameters form.
+    Accessed by the user by url or hyperlink. Controls terrain
+    and environment parameters (and includes some hidden matrix parameters).
     """
     def get(self):
         page = HtmlPage()
@@ -114,7 +117,9 @@ class ParametersFormPageOne(webapp.RequestHandler):
 
 class ParametersFormPageTwo(webapp.RequestHandler):
     """
-    Second page of the three page community parameters form.  Accessed by the user by submitting ParametersFormPageOne.  Controls plant settings
+    Second page of the three page community parameters form.
+    Accessed by the user by submitting ParametersFormPageOne.
+    Controls plant settings
     """
     def post(self):
         page = HtmlPage()
@@ -128,11 +133,15 @@ class ParametersFormPageTwo(webapp.RequestHandler):
             if (i == 1):
                 link_option = self.form_plant_examples_link
                 none_option = ''
-            self.response.out.write(self.form_plant_data % (i, i, none_option,
-                                                            default_selection[0], default_selection[1],
-                                                            default_selection[2], default_selection[3],
-                                                            default_selection[4], link_option))
-        self.response.out.write(self.form_hidden_fields % (self.request.get('water_level'), self.request.get('light_level'), self.request.get('temperature_level')))
+            self.response.out.write(self.form_plant_data %
+                                    (i, i, none_option,
+                                     default_selection[0], default_selection[1],
+                                     default_selection[2], default_selection[3],
+                                     default_selection[4], link_option))
+        self.response.out.write(self.form_hidden_fields %
+                                (self.request.get('water_level'),
+                                 self.request.get('light_level'),
+                                 self.request.get('temperature_level')))
         self.response.out.write(self.form_submit_button)
         self.response.out.write(page.footer)
 
@@ -181,19 +190,22 @@ class ParametersFormPageTwo(webapp.RequestHandler):
 
 class GetParameters(webapp.RequestHandler):
     """
-    Returns the community record with a particular timestamp as XML.  Accessed by the vMeadow opensim module.
+    Returns the community record with a particular timestamp as XML.
+    Accessed by the vMeadow opensim module.
     """
     def get(self):
         data = db.GqlQuery("SELECT * FROM MeadowRecordObject WHERE id=:1",
                             self.request.get('id'))
         if (data.count() == 1):
-            #if there are no records or more than one, something has gone wrong and we are better off NOT sending anything.
+            #if there are no records or more than one, something has gone wrong and
+            #we are better off NOT sending anything.
             self.response.out.write(data[0].to_xml())
 
 
 class PlantPicturesPage(webapp.RequestHandler):
     """
-    Displays a page with photos of the different plant types in a new browser window.  Accessed through links on the SetupMatrix page form.
+    Displays a page with photos of the different plant types in a new browser window.
+    Accessed through links on the SetupMatrix page form.
     """
     def get(self):
         page = HtmlPage()
@@ -403,7 +415,10 @@ class PlantPicturesPage(webapp.RequestHandler):
 
 class ParametersFormPageThree(webapp.RequestHandler):
     """
-    Page 3 of the three page parameters request form.  Accessed by submitting ParametersFormPageTwo.  Controls starting matrix and disturbance settings and stores the output from all three pages.
+    Page 3 of the three page parameters request form.
+    Accessed by submitting ParametersFormPageTwo.
+    Controls starting matrix and disturbance settings and stores the
+    output from all three pages.
     """
     def post(self):
         submit_value = self.request.get('submit_value')
@@ -482,7 +497,17 @@ class ParametersFormPageThree(webapp.RequestHandler):
                 self.response.out.write('<br>')
         self.response.out.write(self.form_table_footer)
         if (len(selected) > 0):
-            self.response.out.write(self.form_cell_value_selector)
+            plant_codes_list = []
+            for i in range(1,6):
+                plant_code = self.request.get('plant_code_%s' % i)
+                if (plant_code != '-1'):
+                    plant_codes_list.append(plant_code)
+            plant_codes_count = len(plant_codes_list)
+            self.response.out.write(self.form_cell_value_selector_header)
+            for i in range(0,plant_codes_count):
+                self.response.out.write(self.form_cell_value_selector_option %
+                                        (i+1, self.common_names[int(plant_codes_list[i])]))
+            self.response.out.write(self.form_cell_value_selector_footer)
             self.response.out.write(self.form_assign_cells_button)
             if (len(selected) == 2):
                 self.response.out.write(self.form_assign_area_button)
@@ -498,7 +523,8 @@ class ParametersFormPageThree(webapp.RequestHandler):
             self.request.get('light_level'),
             self.request.get('temperature_level')))
         for x in range(1, 6):
-            self.response.out.write(self.form_plant_code_hidden_field % (x, self.request.get('plant_code_%s' % x)))
+            self.response.out.write(self.form_plant_code_hidden_field %
+                                    (x, self.request.get('plant_code_%s' % x)))
         self.response.out.write(self.form_footer)
         self.response.out.write(page.footer)
 
@@ -540,11 +566,6 @@ class ParametersFormPageThree(webapp.RequestHandler):
         record.plant_types = ''
         if (len(plant_codes_list) != 0):
             record.plant_types = ','.join(plant_codes_list)
-        #for i in range(1, 6):
-        #    comma = ','
-        #    if (i == 5):
-        #        comma = ''
-        #    record.plant_types += self.request.get('plant_code_%s' % i) + comma
         record.disturbance_level = int(self.request.get('disturbance_level'))
         # Store the community matrix
         #This matrix starts with 0 in the NW corner and I need 0 in the SW corner
@@ -567,7 +588,8 @@ class ParametersFormPageThree(webapp.RequestHandler):
             </span>
         </p>
         <p>
-            To run the simulation use the following simulation code.<br><b>Write it down</b> - you will need it when you report your results.
+            To run the simulation use the following simulation code.<br>
+            <b>Write it down</b> - you will need it when you report your results.
         </p>
         <p>
             <blockquote style="font-size: larger;">
@@ -597,29 +619,24 @@ class ParametersFormPageThree(webapp.RequestHandler):
 
     form_table_header = '<table background="/images/Terrain0_map.jpg"><tbody><td>'
 
-    form_button = '<input type="image" name="aaa%s" src="/images/%sbutton.png" style="width: 10px; height=10px;">'
+    form_button = """
+        <input type="image" name="aaa%s" src="/images/%sbutton.png" style="width: 10px; height=10px;">
+        """
 
     form_table_footer = '</td></tbody></table>'
 
-    form_cell_value_selector_disturbance_only = """
-        <b>Cell value:</b>
-        <select name="cell_value">
-            <option value = "R">Not disturbed</option>
-            <option value = "N">Permanent disturbance</option>
-        </select>
-        """
-
-    form_cell_value_selector = """
+    form_cell_value_selector_header = """
         <b>Cell value:</b>
         <select name="cell_value">
             <option value = "R">Random plant type</option>
             <option value = "N">Permanent disturbance</option>
             <option value = "0">Gap (temporary)</option>
-            <option value = "1">Plant type 1</option>
-            <option value = "2">Plant type 2</option>
-            <option value = "3">Plant type 3</option>
-            <option value = "4">Plant type 4</option>
-            <option value = "5">Plant type 5</option>
+        """
+    form_cell_value_selector_option = """
+            <option value = "%s">%s</option>
+        """
+
+    form_cell_value_selector_footer = """
         </select>
         """
 
@@ -651,6 +668,21 @@ class ParametersFormPageThree(webapp.RequestHandler):
         """
 
     form_footer = '</form>'
+
+    common_names = ['Alder',
+                    'Aspen',
+                    'Starthistle',
+                    'Juniper',
+                    'Serviceberry',
+                    'Sagebrush',
+                    'Sumac',
+                    'Wildrose',
+                    'Fern',
+                    'Maple',
+                    'Elderberry',
+                    'Pine',
+                    'Cottonwood',
+                    'Willow']
 
 class RequestPlot(webapp.RequestHandler):
     """
@@ -712,7 +744,13 @@ class RequestPlot(webapp.RequestHandler):
     # Debugging this can be nasty.  Keep this example of a good plot string for testing purposes.
     plot_data_string_TEST = """
         "year,Gaps,Alder,Fern,Cottonwood,Sagebrush,Pine\\n" +
-        "0,135,75,10,15,45,120\\n" + "1,163,25,45,34,23,110\\n" + "2,174,26,67,45,65,23\\n" + "3,120,18,75,25,64,98\\n" + "4,58,76,100,25,48,93\\n" + "5,138,70,97,34,35,26\\n" + "6,154,86,25,35,45,55\\n" + "7,220,32,22,51,43,32\\n" + "8,167,35,43,45,54,56\\n" + "9,120,38,64,46,75,57\\n" + "10,118,40,73,37,84,48\\n" + "11,55,65,10,70,110,90\\n" + "12,180,80,34,36,38,32\\n"
+        "0,135,75,10,15,45,120\\n" + "1,163,25,45,34,23,110\\n" +
+        "2,174,26,67,45,65,23\\n" + "3,120,18,75,25,64,98\\n" +
+        "4,58,76,100,25,48,93\\n" + "5,138,70,97,34,35,26\\n" +
+        "6,154,86,25,35,45,55\\n" + "7,220,32,22,51,43,32\\n" +
+        "8,167,35,43,45,54,56\\n" + "9,120,38,64,46,75,57\\n" +
+        "10,118,40,73,37,84,48\\n" + "11,55,65,10,70,110,90\\n" +
+        "12,180,80,34,36,38,32\\n"
         """
 
     def request_counts_plot(self, simulation_id, plot_data_string):
@@ -754,6 +792,7 @@ class ShowParametersPage(webapp.RequestHandler):
         disturbance_level = 0
         #This should match the default plant types in the Unity Module
         plant_types = [1, 8, 9, 11, 13]
+        plant_types_count = 5
         is_valid_id = True
         if (simulation_id != 'default'):
             data = db.GqlQuery("SELECT * FROM MeadowRecordObject WHERE id=:1",
@@ -766,28 +805,29 @@ class ShowParametersPage(webapp.RequestHandler):
                 light_level = data.light_level
                 temperature_level = data.temperature_level
                 plant_types = data.plant_types.split(',')
+                #remove the -1's (none's) from the list of plant types
+                plant_types[:] = (value for value in plant_types if value != -1)
+                plant_types_count = len(plant_types)
                 disturbance_level = data.disturbance_level
             else:
                 # There is no such simulation ID (or there is more than one with that ID?)
                 is_valid_id = False
                 self.response.out.write(self.display_error % simulation_id)
         if (is_valid_id):
-            self.response.out.write(self.display_parameters %
+            self.response.out.write(self.display_environment_parameters %
                                     (simulation_id,
                                      self.levels[water_level],
                                      self.levels[light_level],
                                      self.levels[temperature_level],
-                                     self.disturbance_levels[disturbance_level],
-                                     self.plant_names[int(plant_types[0])],
-                                     self.plant_names[int(plant_types[0])],
-                                     self.plant_names[int(plant_types[1])],
-                                     self.plant_names[int(plant_types[1])],
-                                     self.plant_names[int(plant_types[2])],
-                                     self.plant_names[int(plant_types[2])],
-                                     self.plant_names[int(plant_types[3])],
-                                     self.plant_names[int(plant_types[3])],
-                                     self.plant_names[int(plant_types[4])],
-                                     self.plant_names[int(plant_types[4])]))
+                                     self.disturbance_levels[disturbance_level]))
+            self.response.out.write(self.display_species_header)
+
+            for i in range(0, plant_types_count):
+                self.response.out.write(self.display_species %
+                                        (i + 1,
+                                         self.plant_names[int(plant_types[i])],
+                                         self.plant_names[int(plant_types[i])]))
+            self.response.out.write(self.display_species_footer)
         self.response.out.write(page.footer)
 
 
@@ -810,7 +850,7 @@ class ShowParametersPage(webapp.RequestHandler):
                     'Cottonwood',
                     'Willow']
 
-    display_parameters = """
+    display_environment_parameters = """
         <h2>Simulation Parameters</h2>
         <p>
             <b>Simulation ID:</b> %s
@@ -821,28 +861,21 @@ class ShowParametersPage(webapp.RequestHandler):
             <b>Temperature level:</b> %s<br>
             <b>Ongoing disturbance level:</b> %s<br>
         </p>
+        """
+
+    display_species_header = """
         <p>
             <table border="0" cellspacing="5"><tbody><tr valign="top">
+        """
+
+    display_species = """
                 <td>
-                    <b>Species 1:</b> %s<br>
+                    <b>Species %s:</b> %s<br>
                     <img src="/images/%s.png" height="100" width="125"/><br>
                 </td>
-                <td>
-                    <b>Species 2:</b> %s<br>
-                    <img src="/images/%s.png" height="100" width="125"/><br>
-                </td>
-                <td>
-                    <b>Species 3:</b> %s<br>
-                    <img src="/images/%s.png" height="100" width="125"/><br>
-                </td>
-                <td>
-                    <b>Species 4:</b> %s<br>
-                    <img src="/images/%s.png" height="100" width="125"/><br>
-                </td>
-                <td>
-                    <b>Species 5:</b> %s<br>
-                    <img src="/images/%s.png" height="100" width="125"/><br>
-                </td>
+        """
+
+    display_species_footer = """
             </tr></tbody></table>
             <a href="/plants" target="_blank">View plant details</a><br>
         </p>
