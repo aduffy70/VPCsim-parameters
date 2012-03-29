@@ -807,6 +807,16 @@ class ShowParametersPage(webapp.RequestHandler):
                 plant_types[:] = (value for value in plant_types if value != -1)
                 plant_types_count = len(plant_types)
                 disturbance_level = data.disturbance_level
+                temp_starting_matrix = data.starting_matrix
+                upside_down_matrix = []
+                for y in range(50):
+                    row = ''
+                    for x in range(50):
+                        row += temp_starting_matrix[y * 50 + x]
+                    upside_down_matrix.append(row)
+                starting_matrix = ''
+                for y in range(50):
+                    starting_matrix += upside_down_matrix[49 - y]
             else:
                 # There is no such simulation ID (or there is more than one with that ID?)
                 is_valid_id = False
@@ -826,6 +836,17 @@ class ShowParametersPage(webapp.RequestHandler):
                                          self.plant_names[int(plant_types[i])],
                                          self.plant_names[int(plant_types[i])]))
             self.response.out.write(self.display_species_footer)
+            self.response.out.write(self.form_table_header)
+            for j in range(50):
+                for i in range(50):
+                    index = (j * 50) + i
+                    image = starting_matrix[index]
+                    #image = 'R'
+                    self.response.out.write(self.form_button % image)
+                if (j != 49):
+                    self.response.out.write('<br>')
+        self.response.out.write(self.form_table_footer)
+        self.response.out.write(self.form_legend)
         self.response.out.write(page.footer)
 
 
@@ -883,6 +904,22 @@ class ShowParametersPage(webapp.RequestHandler):
         <p>Simulation ID %s does not exist!</p>
         """
 
+    form_table_header = '<b>Starting Community:</b><br><table background="/images/Terrain0_map.jpg"><tbody><td>'
+
+    form_button = '<img src="/images/%sbutton.png" style="width: 10px; height=10px;"/>'
+
+    form_table_footer = '</td></tbody></table>'
+
+    form_legend = """
+        <img src="/images/Rbutton.png" style="width: 10px; height=10px;"/> = Random plant<br>
+        <img src="/images/Nbutton.png" style="width: 10px; height=10px;"/> = Permanent disturbance<br>
+        <img src="/images/0button.png" style="width: 10px; height=10px;"/> = Gap (temporary)<br>
+        <img src="/images/1button.png" style="width: 10px; height=10px;"/> = Species 1<br>
+        <img src="/images/2button.png" style="width: 10px; height=10px;"/> = Species 2<br>
+        <img src="/images/3button.png" style="width: 10px; height=10px;"/> = Species 3<br>
+        <img src="/images/4button.png" style="width: 10px; height=10px;"/> = Species 4<br>
+        <img src="/images/5button.png" style="width: 10px; height=10px;"/> = Species 5<br>
+        """
 
 # url to class mapping
 application = webapp.WSGIApplication([
