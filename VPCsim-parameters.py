@@ -845,8 +845,8 @@ class ShowParametersPage(webapp.RequestHandler):
                     self.response.out.write(self.form_button % image)
                 if (j != 49):
                     self.response.out.write('<br>')
-        self.response.out.write(self.form_table_footer)
-        self.response.out.write(self.form_legend)
+            self.response.out.write(self.form_table_footer)
+            self.response.out.write(self.form_legend)
         self.response.out.write(page.footer)
 
 
