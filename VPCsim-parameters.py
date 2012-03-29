@@ -124,9 +124,12 @@ class ParametersFormPageTwo(webapp.RequestHandler):
             default_selection = ['', '', '', '', '']
             default_selection[i - 1] = 'selected="selected"'
             link_option = ''
+            none_option = self.form_none_option
             if (i == 1):
                 link_option = self.form_plant_examples_link
-            self.response.out.write(self.form_plant_data % (i, i, default_selection[0], default_selection[1],
+                none_option = ''
+            self.response.out.write(self.form_plant_data % (i, i, none_option,
+                                                            default_selection[0], default_selection[1],
                                                             default_selection[2], default_selection[3],
                                                             default_selection[4], link_option))
         self.response.out.write(self.form_hidden_fields % (self.request.get('water_level'), self.request.get('light_level'), self.request.get('temperature_level')))
@@ -144,6 +147,7 @@ class ParametersFormPageTwo(webapp.RequestHandler):
         <p>
             &nbsp;&nbsp;Species %s
             <select name="plant_code_%s">
+                %s
                 <option value = "0">Alder</option>
                 <option value = "1" %s>Aspen</option>
                 <option value = "2">Starthistle</option>
@@ -161,6 +165,8 @@ class ParametersFormPageTwo(webapp.RequestHandler):
             </select>
             %s
         """
+
+    form_none_option = """<option value = "-1">**None**</option>"""
 
     form_plant_examples_link = '<a href="/plants" target="_blank">View examples</a>'
 
@@ -526,12 +532,19 @@ class ParametersFormPageThree(webapp.RequestHandler):
         record.water_level = int(self.request.get('water_level'))
         record.light_level = int(self.request.get('light_level'))
         record.temperature_level = int(self.request.get('temperature_level'))
+        plant_codes_list = []
+        for i in range(1,6):
+            plant_code = self.request.get('plant_code_%s' % i)
+            if (plant_code != '-1'):
+                plant_codes_list.append(plant_code)
         record.plant_types = ''
-        for i in range(1, 6):
-            comma = ','
-            if (i == 5):
-                comma = ''
-            record.plant_types += self.request.get('plant_code_%s' % i) + comma
+        if (len(plant_codes_list) != 0):
+            record.plant_types = ','.join(plant_codes_list)
+        #for i in range(1, 6):
+        #    comma = ','
+        #    if (i == 5):
+        #        comma = ''
+        #    record.plant_types += self.request.get('plant_code_%s' % i) + comma
         record.disturbance_level = int(self.request.get('disturbance_level'))
         # Store the community matrix
         #This matrix starts with 0 in the NW corner and I need 0 in the SW corner
