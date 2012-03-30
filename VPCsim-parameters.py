@@ -860,6 +860,20 @@ class RequestPlot(webapp.RequestHandler):
                                 '% of total biomass'))
 
 
+class SendCrossDomain(webapp.RequestHandler):
+    """
+    Responds to crossdomain permission requests.
+    """
+
+    def get(self):
+        crossdomain = '<?xml version="1.0"?>'
+        crossdomain += '<cross-domain-policy>'
+        crossdomain += '<allow-access-from domain="*"/>'
+        crossdomain += '</cross-domain-policy>'
+        self.response.headers['Content-Type'] = 'text/xml'
+        self.response.out.write(crossdomain)
+
+
 # url to class mapping
 application = webapp.WSGIApplication([
     ('/', ParametersFormPageOne),
@@ -867,7 +881,8 @@ application = webapp.WSGIApplication([
     ('/data', GetParameters),
     ('/requestplot', RequestPlot),
     ('/plants', PlantPicturesPage),
-    ('/show', ShowParametersPage)], debug=True)
+    ('/show', ShowParametersPage),
+    ('/crossdomain.xml', SendCrossDomain)], debug=True)
 
 def main():
     run_wsgi_app(application)

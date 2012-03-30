@@ -7,10 +7,6 @@ handlers:
 - url: /images
   static_dir: images
 
-- url: /crossdomain.xml
-  static_files: static/crossdomain.xml
-  upload: static/crossdomain.xml
-
 - url: /static/lib
   static_dir: static/lib
   mime_type: text/javascript
