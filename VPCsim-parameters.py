@@ -243,46 +243,62 @@ class MeadowRecordObject(db.Model):
 
 class ParametersFormPageOne(webapp.RequestHandler):
     """
-    First page of the three page community parameters form.
-    Accessed by the user by url or hyperlink. Controls terrain
-    and environment parameters (and includes some hidden matrix parameters).
+    First page of the two page community parameters form.
+    Accessed by the user by url or hyperlink. Controls environment
+    parameters, disturbance level, and species choices. (and includes some hidden matrix parameters).
     """
     def get(self):
         page = HtmlPage()
         self.response.out.write(page.header % 'Simulation parameters form')
-        self.response.out.write(page.instructions)
-        self.response.out.write(self.form)
+        self.response.out.write('<h3> Environment Settings:</h3>')
+        self.response.out.write(self.form_environment_settings)
         self.response.out.write(page.footer)
 
-    form = """
+    form_environment_settings = """
         <form enctype="multipart/form-data" action="/parametersform2" method="post">
-            <p>
-                <b>Select the water/moisture/precipitation level:</b><br>
-                <input type="radio" name="water_level" value="4">Highest<br>
-                <input type="radio" name="water_level" value="3">Higher<br>
-                <input type="radio" name="water_level" value="2" checked>Normal<br>
-                <input type="radio" name="water_level" value="1">Lower<br>
-                <input type="radio" name="water_level" value="0">Lowest<br>
+            <p>&nbsp;&nbsp;&nbsp;&nbsp;
+                <b>Water/moisture/precipitation level: </b>
+                <select name="water_level">
+                    <option value="4">Highest</option>
+                    <option value="3">Higher</option>
+                    <option value="2" selected="selected">Normal</option>
+                    <option value="1">Lower</option>
+                    <option value="0">Lowest</option>
+                </select>
             </p>
-            <p>
-                <b>Select the light level:</b><br>
-                <input type="radio" name="light_level" value="4">Highest<br>
-                <input type="radio" name="light_level" value="3">Higher<br>
-                <input type="radio" name="light_level" value="2" checked>Normal<br>
-                <input type="radio" name="light_level" value="1">Lower<br>
-                <input type="radio" name="light_level" value="0">Lowest<br>
+            <p>&nbsp;&nbsp;&nbsp;&nbsp;
+                <b>Light level: </b>
+                <select name="light_level">
+                    <option value="4">Highest</option>
+                    <option value="3">Higher</option>
+                    <option value="2" selected="selected">Normal</option>
+                    <option value="1">Lower</option>
+                    <option value="0">Lowest</option>
+                </select>
             </p>
-            <p>
-                <b>Select the temperature level:</b><br>
-                <input type="radio" name="temperature_level" value="4">Highest<br>
-                <input type="radio" name="temperature_level" value="3">Higher<br>
-                <input type="radio" name="temperature_level" value="2" checked>Normal<br>
-                <input type="radio" name="temperature_level" value="1">Lower<br>
-                <input type="radio" name="temperature_level" value="0">Lowest<br>
+            <p>&nbsp;&nbsp;&nbsp;&nbsp;
+                <b>Temperature level: </b>
+                <select name="temperature_level">
+                    <option value="4">Highest</option>
+                    <option value="3">Higher</option>
+                    <option value="2" selected="selected">Normal</option>
+                    <option value="1">Lower</option>
+                    <option value="0">Lowest</option>
+                </select>
             </p>
+            <p>&nbsp;&nbsp;&nbsp;&nbsp;
+                <b>Ongoing disturbance level: <b>
+                <select name="disturbance_level">
+                    <option value= "0">None</option>
+                    <option value= "1">Very Low</option>
+                    <option value= "2">Low</option>
+                    <option value= "3">High</option>
+                    <option value= "4">Very High</option>
+                </select>
+            <p>
             <input type="submit" value="Continue...">
         </form>
-        """
+    """
 
 
 class ParametersFormPageTwo(webapp.RequestHandler):
@@ -315,7 +331,8 @@ class ParametersFormPageTwo(webapp.RequestHandler):
         self.response.out.write(self.form_hidden_fields %
                                 (self.request.get('water_level'),
                                  self.request.get('light_level'),
-                                 self.request.get('temperature_level')))
+                                 self.request.get('temperature_level'),
+                                 self.request.get('disturbance_level')))
         self.response.out.write(self.form_submit_button)
         self.response.out.write(page.footer)
 
@@ -357,6 +374,7 @@ class ParametersFormPageTwo(webapp.RequestHandler):
         <input type="hidden" name="water_level" value="%s">
         <input type="hidden" name="light_level" value="%s">
         <input type="hidden" name="temperature_level" value="%s">
+        <input type="hidden" name="disturbance_level" value="%s">
         """
 
     form_submit_button = '</p><input type="submit" name="next" value="Continue..."></form>'
@@ -445,7 +463,6 @@ class ParametersFormPageThree(webapp.RequestHandler):
     def redraw_form(self, submit_value):
         page = HtmlPage()
         info = SpeciesInfo()
-        disturbance_level = self.request.get('disturbance_level')
         starting_matrix = list(self.request.get('starting_matrix'))
         if (len(starting_matrix) == 0):
             #Set up the default starting matrix with all Rs
@@ -479,21 +496,6 @@ class ParametersFormPageThree(webapp.RequestHandler):
             selected.append(clicked)
         self.response.out.write(page.header % 'Simulation parameters form')
         self.response.out.write(self.form_header)
-        if (disturbance_level == '1'):
-            self.response.out.write(self.form_ongoing_disturbance_selector % (
-            '', 'selected', '', '', ''))
-        elif (disturbance_level == '2'):
-            self.response.out.write(self.form_ongoing_disturbance_selector % (
-            '', '', 'selected', '', ''))
-        elif (disturbance_level == '3'):
-            self.response.out.write(self.form_ongoing_disturbance_selector % (
-            '', '', '', 'selected', ''))
-        elif (disturbance_level == '4'):
-            self.response.out.write(self.form_ongoing_disturbance_selector % (
-            '', '', '', '', 'selected'))
-        else:
-            self.response.out.write(self.form_ongoing_disturbance_selector % (
-            'selected', '', '', '', ''))
         self.response.out.write(self.form_starting_matrix_map_label)
         self.response.out.write(self.form_table_header)
         for j in range(50):
@@ -532,7 +534,8 @@ class ParametersFormPageThree(webapp.RequestHandler):
         self.response.out.write(self.form_passive_hidden_fields % (
             self.request.get('water_level'),
             self.request.get('light_level'),
-            self.request.get('temperature_level')))
+            self.request.get('temperature_level'),
+            self.request.get('disturbance_level')))
         for x in range(1, 6):
             self.response.out.write(self.form_plant_code_hidden_field %
                                     (x, self.request.get('plant_code_%s' % x)))
@@ -565,10 +568,11 @@ class ParametersFormPageThree(webapp.RequestHandler):
         record = MeadowRecordObject()
         # Store a timestamp as the record id
         record.id = self.id
-        # Store the water_level, light_level, and temperature_level, and list of plant_species.
+        # Store the water_level, light_level, and temperature_level, disturbance_level and list of plant_species.
         record.water_level = int(self.request.get('water_level'))
         record.light_level = int(self.request.get('light_level'))
         record.temperature_level = int(self.request.get('temperature_level'))
+        record.disturbance_level = int(self.request.get('disturbance_level'))
         plant_codes_list = []
         for i in range(1,6):
             plant_code = self.request.get('plant_code_%s' % i)
@@ -577,7 +581,6 @@ class ParametersFormPageThree(webapp.RequestHandler):
         record.plant_types = ''
         if (len(plant_codes_list) != 0):
             record.plant_types = ','.join(plant_codes_list)
-        record.disturbance_level = int(self.request.get('disturbance_level'))
         # Store the community matrix
         #This matrix starts with 0 in the NW corner and I need 0 in the SW corner
         temp_starting_matrix = self.request.get('starting_matrix')
@@ -611,20 +614,8 @@ class ParametersFormPageThree(webapp.RequestHandler):
 
     form_header = '<form enctype="multipart/form-data" action="/parametersform3" method="post">'
 
-    form_ongoing_disturbance_selector= """
-        <p>
-            <b>Ongoing disturbance level: <b>
-            <select name="disturbance_level">
-                <option %s value = "0">None</option>
-                <option %s value = "1">Very Low</option>
-                <option %s value = "2">Low</option>
-                <option %s value = "3">High</option>
-                <option %s value = "4">Very High</option>
-            </select>
-        <p>
-        """
-
     form_starting_matrix_map_label = """
+        <h3>Initial plant distribution</h3>
         <b>Click on the map to select one or more cells to set the starting status:</b>
         """
 
@@ -670,6 +661,7 @@ class ParametersFormPageThree(webapp.RequestHandler):
         <input type="hidden" name="water_level" value="%s">
         <input type="hidden" name="light_level" value="%s">
         <input type="hidden" name="temperature_level" value="%s">
+        <input type="hidden" name="disturbance_level" value="%s">
         """
 
     form_plant_code_hidden_field = """
