@@ -237,7 +237,7 @@ class MeadowRecordObject(db.Model):
     disturbance_level = db.IntegerProperty()
 
     #50x50 matrix representing the starting values for each position in the matrix
-    #(R=random, N=disturbance, 0=gap, 1-5=plant types)
+    #(R=random, N=permanent disturbance, 0=gap, 1-5=plant types)
     starting_matrix = db.TextProperty()
 
 
@@ -249,13 +249,32 @@ class ParametersFormPageOne(webapp.RequestHandler):
     """
     def get(self):
         page = HtmlPage()
+        info = SpeciesInfo()
         self.response.out.write(page.header % 'Simulation parameters form')
-        self.response.out.write('<h3> Environment Settings:</h3>')
         self.response.out.write(self.form_environment_settings)
+        self.response.out.write(self.form_plant_choices_header)
+        for i in range(1,6):
+            default_selection = ['', '', '', '', '']
+            default_selection[i - 1] = 'selected="selected"'
+            link_option = ''
+            none_option = self.form_none_option
+            if (i == 1):
+                link_option = self.form_plant_examples_link
+                none_option = ''
+            self.response.out.write(self.form_plant_choices %
+                                    (i, i, none_option, info.common_names[0], default_selection[0],
+                                     info.common_names[1], info.common_names[2], info.common_names[3],
+                                     info.common_names[4], info.common_names[5], info.common_names[6],
+                                     info.common_names[7], default_selection[1], info.common_names[8],
+                                     default_selection[2], info.common_names[9], info.common_names[10],
+                                     default_selection[3], info.common_names[11], info.common_names[12],
+                                     default_selection[4], info.common_names[13], link_option))
+        self.response.out.write(self.form_submit_button)
         self.response.out.write(page.footer)
 
     form_environment_settings = """
         <form enctype="multipart/form-data" action="/parametersform2" method="post">
+            <h3> Environment Settings:</h3>
             <p>&nbsp;&nbsp;&nbsp;&nbsp;
                 <b>Water/moisture/precipitation level: </b>
                 <select name="water_level">
@@ -295,57 +314,19 @@ class ParametersFormPageOne(webapp.RequestHandler):
                     <option value= "3">High</option>
                     <option value= "4">Very High</option>
                 </select>
-            <p>
-            <input type="submit" value="Continue...">
-        </form>
+            <p><br>
     """
 
-
-class ParametersFormPageTwo(webapp.RequestHandler):
-    """
-    Second page of the three page community parameters form.
-    Accessed by the user by submitting ParametersFormPageOne.
-    Controls plant settings
-    """
-    def post(self):
-        page = HtmlPage()
-        info = SpeciesInfo()
-        self.response.out.write(page.header % 'Simulation parameters form')
-        self.response.out.write(self.form_header)
-        for i in range(1,6):
-            default_selection = ['', '', '', '', '']
-            default_selection[i - 1] = 'selected="selected"'
-            link_option = ''
-            none_option = self.form_none_option
-            if (i == 1):
-                link_option = self.form_plant_examples_link
-                none_option = ''
-            self.response.out.write(self.form_plant_data %
-                                    (i, i, none_option, info.common_names[0], default_selection[0],
-                                     info.common_names[1], info.common_names[2], info.common_names[3],
-                                     info.common_names[4], info.common_names[5], info.common_names[6],
-                                     info.common_names[7], default_selection[1], info.common_names[8],
-                                     default_selection[2], info.common_names[9], info.common_names[10],
-                                     default_selection[3], info.common_names[11], info.common_names[12],
-                                     default_selection[4], info.common_names[13], link_option))
-        self.response.out.write(self.form_hidden_fields %
-                                (self.request.get('water_level'),
-                                 self.request.get('light_level'),
-                                 self.request.get('temperature_level'),
-                                 self.request.get('disturbance_level')))
-        self.response.out.write(self.form_submit_button)
-        self.response.out.write(page.footer)
-
-    form_header = """
-        <form enctype="multipart/form-data" action="/parametersform3" method="post">
+    form_plant_choices_header = """
+        <h3>Species Settings:</h3>
         <p>
-            <b>Select 5 plant species to include in the community:</b>
+            <b>Select plant species to include in the community.</b>
         </p>
         """
 
-    form_plant_data = """
-        <p>
-            &nbsp;&nbsp;Species %s
+    form_plant_choices = """
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;
+            Species %s
             <select name="plant_code_%s">
                 %s
                 <option value = "0">%s</option>
@@ -366,19 +347,11 @@ class ParametersFormPageTwo(webapp.RequestHandler):
             %s
         """
 
-    form_none_option = """<option value = "-1">**None**</option>"""
+    form_none_option = '<option value = "-1">**None**</option>'
 
     form_plant_examples_link = '<a href="/plants" target="_blank">View examples</a>'
 
-    form_hidden_fields = """
-        <input type="hidden" name="water_level" value="%s">
-        <input type="hidden" name="light_level" value="%s">
-        <input type="hidden" name="temperature_level" value="%s">
-        <input type="hidden" name="disturbance_level" value="%s">
-        """
-
     form_submit_button = '</p><input type="submit" name="next" value="Continue..."></form>'
-
 
 class GetParameters(webapp.RequestHandler):
     """
@@ -404,18 +377,13 @@ class PlantPicturesPage(webapp.RequestHandler):
         info = SpeciesInfo()
         self.response.out.write(page.header % 'Species info')
         for i in range(14):
-            self.response.out.write(self.plant_info_display % (info.common_names[i],
-                                    info.latin_binomials[i],
-                                    info.common_names[i],
-                                    info.lifespans[i],
-                                    info.water_levels[i],
-                                    info.light_levels[i],
-                                    info.temperature_levels[i],
-                                    info.altitudes[i],
-                                    info.colonizing_levels[i],
-                                    info.replaces_lists[i],
-                                    info.replaced_by_lists[i],
-                                    info.other_notes[i]))
+            self.response.out.write(self.plant_info_display %
+                                    (info.common_names[i], info.latin_binomials[i],
+                                     info.common_names[i], info.lifespans[i],
+                                     info.water_levels[i], info.light_levels[i],
+                                     info.temperature_levels[i], info.altitudes[i],
+                                     info.colonizing_levels[i], info.replaces_lists[i],
+                                     info.replaced_by_lists[i], info.other_notes[i]))
         self.response.out.write(page.footer)
 
     plant_info_display = """
@@ -441,10 +409,10 @@ class PlantPicturesPage(webapp.RequestHandler):
         """
 
 
-class ParametersFormPageThree(webapp.RequestHandler):
+class ParametersFormPageTwo(webapp.RequestHandler):
     """
-    Page 3 of the three page parameters request form.
-    Accessed by submitting ParametersFormPageTwo.
+    Page 2 of the two page parameters request form.
+    Accessed by submitting ParametersFormPageOne.
     Controls starting matrix and disturbance settings and stores the
     output from all three pages.
     """
@@ -568,7 +536,8 @@ class ParametersFormPageThree(webapp.RequestHandler):
         record = MeadowRecordObject()
         # Store a timestamp as the record id
         record.id = self.id
-        # Store the water_level, light_level, and temperature_level, disturbance_level and list of plant_species.
+        # Store the water_level, light_level, and temperature_level,
+        # disturbance_level and list of plant_species.
         record.water_level = int(self.request.get('water_level'))
         record.light_level = int(self.request.get('light_level'))
         record.temperature_level = int(self.request.get('temperature_level'))
@@ -582,7 +551,7 @@ class ParametersFormPageThree(webapp.RequestHandler):
         if (len(plant_codes_list) != 0):
             record.plant_types = ','.join(plant_codes_list)
         # Store the community matrix
-        #This matrix starts with 0 in the NW corner and I need 0 in the SW corner
+        # This matrix starts with 0 in the NW corner and I need 0 in the SW corner
         temp_starting_matrix = self.request.get('starting_matrix')
         upside_down_matrix = []
         for y in range(50):
@@ -612,11 +581,11 @@ class ParametersFormPageThree(webapp.RequestHandler):
         </p>
         """
 
-    form_header = '<form enctype="multipart/form-data" action="/parametersform3" method="post">'
+    form_header = '<form enctype="multipart/form-data" action="/parametersform2" method="post">'
 
     form_starting_matrix_map_label = """
-        <h3>Initial plant distribution</h3>
-        <b>Click on the map to select one or more cells to set the starting status:</b>
+        <h3>Initial plant distribution:</h3>
+        <b>Click on the map to select one or more cells to set the starting status.</b>
         """
 
     form_table_header = '<table background="/images/Terrain0_map.jpg"><tbody><td>'
@@ -632,6 +601,7 @@ class ParametersFormPageThree(webapp.RequestHandler):
             <option value = "N">Permanent disturbance</option>
             <option value = "0">Gap (temporary)</option>
         """
+
     form_cell_value_selector_option = """
             <option value = "%s">%s</option>
         """
@@ -770,6 +740,7 @@ class ShowParametersPage(webapp.RequestHandler):
     """
     def get(self):
         page = HtmlPage()
+        info = SpeciesInfo()
         self.response.out.write(page.header % 'Simulation parameters')
         simulation_id = self.request.get('id')
         water_level = 2
@@ -821,8 +792,8 @@ class ShowParametersPage(webapp.RequestHandler):
             for i in range(0, plant_types_count):
                 self.response.out.write(self.display_species %
                                         (i + 1,
-                                         self.plant_names[int(plant_types[i])],
-                                         self.plant_names[int(plant_types[i])]))
+                                         info.common_names[int(plant_types[i])],
+                                         info.common_names[int(plant_types[i])]))
             self.response.out.write(self.display_species_footer)
             self.response.out.write(self.form_table_header)
             for j in range(50):
@@ -839,25 +810,9 @@ class ShowParametersPage(webapp.RequestHandler):
             self.response.out.write(self.form_legend)
         self.response.out.write(page.footer)
 
-
-
     #Conversions from the stored level integer values to human readable values
     levels = ["Lowest", "Lower", "Normal", "Higher", "Highest"]
     disturbance_levels = ["None", "Very Low","Low", "High", "Very High"]
-    plant_names = [ 'Alder',
-                    'Aspen',
-                    'Starthistle',
-                    'Juniper',
-                    'Serviceberry',
-                    'Sagebrush',
-                    'Sumac',
-                    'Wildrose',
-                    'Fern',
-                    'Maple',
-                    'Elderberry',
-                    'Pine',
-                    'Cottonwood',
-                    'Willow']
 
     display_environment_parameters = """
         <h2>Simulation Parameters</h2>
@@ -915,7 +870,6 @@ class ShowParametersPage(webapp.RequestHandler):
 application = webapp.WSGIApplication([
     ('/', ParametersFormPageOne),
     ('/parametersform2', ParametersFormPageTwo),
-    ('/parametersform3', ParametersFormPageThree),
     ('/data', GetParameters),
     ('/requestplot', RequestPlot),
     ('/plants', PlantPicturesPage),
