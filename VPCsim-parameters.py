@@ -38,15 +38,6 @@ class HtmlPage():
     """
     header = '<html><head><title>%s</title></head><body>'
 
-    instructions = """
-        <p>
-            This form generates virtual plants in a simulated plant community growing
-            in the 3D virtual space. Changes made here will not take effect until
-            they are enabled there.<br>
-        </p>
-        <hr>
-        """
-
     footer = '</body></html>'
 
 class SpeciesInfo():
@@ -353,61 +344,6 @@ class ParametersFormPageOne(webapp.RequestHandler):
 
     form_submit_button = '</p><input type="submit" name="next" value="Continue..."></form>'
 
-class GetParameters(webapp.RequestHandler):
-    """
-    Returns the community record with a particular timestamp as XML.
-    Accessed by the vMeadow opensim module.
-    """
-    def get(self):
-        data = db.GqlQuery("SELECT * FROM MeadowRecordObject WHERE id=:1",
-                            self.request.get('id'))
-        if (data.count() == 1):
-            #if there are no records or more than one, something has gone wrong and
-            #we are better off NOT sending anything.
-            self.response.out.write(data[0].to_xml())
-
-
-class PlantPicturesPage(webapp.RequestHandler):
-    """
-    Displays a page with photos of the different plant types in a new browser window.
-    Accessed through links on the SetupMatrix page form.
-    """
-    def get(self):
-        page = HtmlPage()
-        info = SpeciesInfo()
-        self.response.out.write(page.header % 'Species info')
-        for i in range(14):
-            self.response.out.write(self.plant_info_display %
-                                    (info.common_names[i], info.latin_binomials[i],
-                                     info.common_names[i], info.lifespans[i],
-                                     info.water_levels[i], info.light_levels[i],
-                                     info.temperature_levels[i], info.altitudes[i],
-                                     info.colonizing_levels[i], info.replaces_lists[i],
-                                     info.replaced_by_lists[i], info.other_notes[i]))
-        self.response.out.write(page.footer)
-
-    plant_info_display = """
-        <p>
-            <big><b>%s</b></big> (<i>%s</i>)
-            <table border="0"><tbody><tr valign="top">
-                <td>
-                    <img src="/images/%s.png" height="250" width="300"/>
-                </td>
-                <td>
-                    <b>Lifespan:</b> %s<br><br>
-                    <b>Water:</b> %s<br>
-                    <b>Light:</b> %s<br>
-                    <b>Temp:</b> %s<br>
-                    <b>Altitude:</b> %s<br><br>
-                    <b>Colonizer:</b> %s<br>
-                    <b>Outcompetes:</b> %s<br>
-                    <b>Outcompeted by:</b> %s<br><br>
-                    <b>Other notes:</b> %s
-                </td>
-            </tr></tbody></table>
-        </p>
-        """
-
 
 class ParametersFormPageTwo(webapp.RequestHandler):
     """
@@ -640,98 +576,47 @@ class ParametersFormPageTwo(webapp.RequestHandler):
 
     form_footer = '</form>'
 
-class RequestPlot(webapp.RequestHandler):
+
+class PlantPicturesPage(webapp.RequestHandler):
     """
-    Accepts data for plotting and returns an interactive dygraph-based plot.
+    Displays a page with photos of the different plant types in a new browser window.
+    Accessed through links on the SetupMatrix page form.
     """
     def get(self):
-        #This should only ever get called with post data but this helps with testing
-        self.post()
+        page = HtmlPage()
+        info = SpeciesInfo()
+        self.response.out.write(page.header % 'Species info')
+        for i in range(14):
+            self.response.out.write(self.plant_info_display %
+                                    (info.common_names[i], info.latin_binomials[i],
+                                     info.common_names[i], info.lifespans[i],
+                                     info.water_levels[i], info.light_levels[i],
+                                     info.temperature_levels[i], info.altitudes[i],
+                                     info.colonizing_levels[i], info.replaces_lists[i],
+                                     info.replaced_by_lists[i], info.other_notes[i]))
+        self.response.out.write(page.footer)
 
-    def post(self):
-        plot_type = self.request.get('plot_type')
-        simulation_id = self.request.get('simulation_id')
-        if (plot_type == 'counts'):
-            data_string = self.request.get('data_string')
-            self.request_counts_plot(simulation_id, data_string)
-        elif (plot_type == 'age'):
-            data_string = self.request.get('data_string')
-            self.request_ages_plot(simulation_id, data_string)
-        elif (plot_type == 'biomass'):
-            data_string = self.request.get('data_string')
-            self.request_biomass_plot(simulation_id, data_string)
-        else:
-            self.response.out.write("<html><body>Invalid plot type request</body></html>")
-
-    plot_creation_code = """
-        <html>
-            <head>
-                <title>%s Plot</title>
-                <script type="text/javascript" src="static/lib/dygraph-combined.js" charset="utf-8"></script>
-            </head>
-            <body>
-                <div>
-                    <h3>Simulation ID: %s</h3>
-                </div>
-                <div id="graphdiv"></div>
-                <script type="text/javascript">
-                    g = new Dygraph(
-                        document.getElementById("graphdiv"),
-                        %s,
-                        {
-                            rollPeriod: 1,
-                            showRoller: true,
-                            includeZero: true,
-                            title: <b>%s</b>,
-                            xlabel: <b>year</b>,
-                            ylabel: <b>%s</b>,
-                            legend: "always",
-                            labelsSeparateLines: false,
-                            labelsDivWidth: 650,
-                            width: 800,
-                            height: 400,
-                            drawXGrid: false
-                        });
-                </script>
-            </body>
-        </html>
+    plant_info_display = """
+        <p>
+            <big><b>%s</b></big> (<i>%s</i>)
+            <table border="0"><tbody><tr valign="top">
+                <td>
+                    <img src="/images/%s.png" height="250" width="300"/>
+                </td>
+                <td>
+                    <b>Lifespan:</b> %s<br><br>
+                    <b>Water:</b> %s<br>
+                    <b>Light:</b> %s<br>
+                    <b>Temp:</b> %s<br>
+                    <b>Altitude:</b> %s<br><br>
+                    <b>Colonizer:</b> %s<br>
+                    <b>Outcompetes:</b> %s<br>
+                    <b>Outcompeted by:</b> %s<br><br>
+                    <b>Other notes:</b> %s
+                </td>
+            </tr></tbody></table>
+        </p>
         """
-
-    # Debugging this can be nasty.  Keep this example of a good plot string for testing purposes.
-    plot_data_string_TEST = """
-        "year,Gaps,Alder,Fern,Cottonwood,Sagebrush,Pine\\n" +
-        "0,135,75,10,15,45,120\\n" + "1,163,25,45,34,23,110\\n" +
-        "2,174,26,67,45,65,23\\n" + "3,120,18,75,25,64,98\\n" +
-        "4,58,76,100,25,48,93\\n" + "5,138,70,97,34,35,26\\n" +
-        "6,154,86,25,35,45,55\\n" + "7,220,32,22,51,43,32\\n" +
-        "8,167,35,43,45,54,56\\n" + "9,120,38,64,46,75,57\\n" +
-        "10,118,40,73,37,84,48\\n" + "11,55,65,10,70,110,90\\n" +
-        "12,180,80,34,36,38,32\\n"
-        """
-
-    def request_counts_plot(self, simulation_id, plot_data_string):
-        self.response.out.write(self.plot_creation_code % (
-                                'Count',
-                                simulation_id,
-                                plot_data_string,
-                                'Counts by Species',
-                                '# of individuals'))
-
-    def request_ages_plot(self, simulation_id, plot_data_string):
-        self.response.out.write(self.plot_creation_code % (
-                                'Age',
-                                simulation_id,
-                                plot_data_string,
-                                'Average Age by Species',
-                                'average age'))
-
-    def request_biomass_plot(self, simulation_id, plot_data_string):
-         self.response.out.write(self.plot_creation_code % (
-                                'Biomass',
-                                simulation_id,
-                                plot_data_string,
-                                'Biomass by Species',
-                                '% of total biomass'))
 
 
 class ShowParametersPage(webapp.RequestHandler):
@@ -865,6 +750,115 @@ class ShowParametersPage(webapp.RequestHandler):
         <img src="/images/4button.png" style="width: 10px; height=10px;"/> = Species 4<br>
         <img src="/images/5button.png" style="width: 10px; height=10px;"/> = Species 5<br>
         """
+
+
+class GetParameters(webapp.RequestHandler):
+    """
+    Returns the community record with a particular timestamp as XML.
+    Accessed by the vMeadow opensim module.
+    """
+    def get(self):
+        data = db.GqlQuery("SELECT * FROM MeadowRecordObject WHERE id=:1",
+                            self.request.get('id'))
+        if (data.count() == 1):
+            #if there are no records or more than one, something has gone wrong and
+            #we are better off NOT sending anything.
+            self.response.out.write(data[0].to_xml())
+
+
+class RequestPlot(webapp.RequestHandler):
+    """
+    Accepts data for plotting and returns an interactive dygraph-based plot.
+    """
+    def get(self):
+        #This should only ever get called with post data but this helps with testing
+        self.post()
+
+    def post(self):
+        plot_type = self.request.get('plot_type')
+        simulation_id = self.request.get('simulation_id')
+        if (plot_type == 'counts'):
+            data_string = self.request.get('data_string')
+            self.request_counts_plot(simulation_id, data_string)
+        elif (plot_type == 'age'):
+            data_string = self.request.get('data_string')
+            self.request_ages_plot(simulation_id, data_string)
+        elif (plot_type == 'biomass'):
+            data_string = self.request.get('data_string')
+            self.request_biomass_plot(simulation_id, data_string)
+        else:
+            self.response.out.write("<html><body>Invalid plot type request</body></html>")
+
+    plot_creation_code = """
+        <html>
+            <head>
+                <title>%s Plot</title>
+                <script type="text/javascript" src="static/lib/dygraph-combined.js" charset="utf-8"></script>
+            </head>
+            <body>
+                <div>
+                    <h3>Simulation ID: %s</h3>
+                </div>
+                <div id="graphdiv"></div>
+                <script type="text/javascript">
+                    g = new Dygraph(
+                        document.getElementById("graphdiv"),
+                        %s,
+                        {
+                            rollPeriod: 1,
+                            showRoller: true,
+                            includeZero: true,
+                            title: <b>%s</b>,
+                            xlabel: <b>year</b>,
+                            ylabel: <b>%s</b>,
+                            legend: "always",
+                            labelsSeparateLines: false,
+                            labelsDivWidth: 650,
+                            width: 800,
+                            height: 400,
+                            drawXGrid: false
+                        });
+                </script>
+            </body>
+        </html>
+        """
+
+    # Debugging this can be nasty.  Keep this example of a good plot string for testing purposes.
+    plot_data_string_TEST = """
+        "year,Gaps,Alder,Fern,Cottonwood,Sagebrush,Pine\\n" +
+        "0,135,75,10,15,45,120\\n" + "1,163,25,45,34,23,110\\n" +
+        "2,174,26,67,45,65,23\\n" + "3,120,18,75,25,64,98\\n" +
+        "4,58,76,100,25,48,93\\n" + "5,138,70,97,34,35,26\\n" +
+        "6,154,86,25,35,45,55\\n" + "7,220,32,22,51,43,32\\n" +
+        "8,167,35,43,45,54,56\\n" + "9,120,38,64,46,75,57\\n" +
+        "10,118,40,73,37,84,48\\n" + "11,55,65,10,70,110,90\\n" +
+        "12,180,80,34,36,38,32\\n"
+        """
+
+    def request_counts_plot(self, simulation_id, plot_data_string):
+        self.response.out.write(self.plot_creation_code % (
+                                'Count',
+                                simulation_id,
+                                plot_data_string,
+                                'Counts by Species',
+                                '# of individuals'))
+
+    def request_ages_plot(self, simulation_id, plot_data_string):
+        self.response.out.write(self.plot_creation_code % (
+                                'Age',
+                                simulation_id,
+                                plot_data_string,
+                                'Average Age by Species',
+                                'average age'))
+
+    def request_biomass_plot(self, simulation_id, plot_data_string):
+         self.response.out.write(self.plot_creation_code % (
+                                'Biomass',
+                                simulation_id,
+                                plot_data_string,
+                                'Biomass by Species',
+                                '% of total biomass'))
+
 
 # url to class mapping
 application = webapp.WSGIApplication([
