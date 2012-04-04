@@ -25,7 +25,6 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 """
 
-#import cgi
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp.util import run_wsgi_app
 from google.appengine.ext import db
@@ -236,7 +235,7 @@ class ParametersFormPageOne(webapp.RequestHandler):
     """
     First page of the two page community parameters form.
     Accessed by the user by url or hyperlink. Controls environment
-    parameters, disturbance level, and species choices. (and includes some hidden matrix parameters).
+    parameters, disturbance level, and species choices.
     """
     def get(self):
         page = HtmlPage()
@@ -347,125 +346,221 @@ class ParametersFormPageOne(webapp.RequestHandler):
 
 class ParametersFormPageTwo(webapp.RequestHandler):
     """
-    Page 2 of the two page parameters request form.
-    Accessed by submitting ParametersFormPageOne.
-    Controls starting matrix and disturbance settings and stores the
-    output from all three pages.
+    Second page of the two page community parameters form.
+    Controls the starting community.
     """
     def post(self):
-        submit_value = self.request.get('submit_value')
-        if (submit_value == 'Submit parameters'):
-            page = HtmlPage()
-            self.response.out.write(page.header % 'Simulation parameters form')
-            self.id = str(int(time.time() * 1000.0))
-            self.store_record()
-            self.response.out.write(self.success_output_all_parameters % self.id)
-            self.response.out.write(page.footer)
-        else:
-            self.redraw_form(submit_value)
+        self.response.out.write(self.header % ('Simulation parameters form', self.javascript))
+        self.draw_form()
+        self.response.out.write(self.footer)
 
-    def redraw_form(self, submit_value):
-        page = HtmlPage()
+    def draw_form(self):
+        #Set up the default starting matrix with all Rs
         info = SpeciesInfo()
-        starting_matrix = list(self.request.get('starting_matrix'))
-        if (len(starting_matrix) == 0):
-            #Set up the default starting matrix with all Rs
-            starting_matrix = []
-            for i in range(2500):
-                starting_matrix.append('R')
-        clicked = ''
-        if ((submit_value == '') and (self.request.get('next') == '')):
-            argument_list = self.request.arguments()
-            argument_list.sort()
-            submit_value = argument_list[0].split('.')[0][3:]
-            clicked = submit_value
-        selected = []
-        selected_string = self.request.get('selected')
-        if (selected_string != ''):
-            selected = selected_string.split(',')
-        if (submit_value == 'Apply cell value to cells'):
-            cell_value = self.request.get('cell_value')
-            for cell in selected:
-                starting_matrix[int(cell)] = cell_value
-            selected = []
-        elif (submit_value == 'Apply cell value to area'):
-            cell_value = self.request.get('cell_value')
-            selected_area = self.get_area_list_from_corners(int(selected[0]), int(selected[1]))
-            for cell in selected_area:
-                starting_matrix[int(cell)] = cell_value
-            selected = []
-        elif (submit_value in selected):
-            selected.remove(submit_value)
-        else:
-            selected.append(clicked)
-        self.response.out.write(page.header % 'Simulation parameters form')
+        self.response.out.write(self.form_instructions)
         self.response.out.write(self.form_header)
-        self.response.out.write(self.form_starting_matrix_map_label)
         self.response.out.write(self.form_table_header)
         for j in range(50):
             for i in range(50):
                 index = (j * 50) + i
-                if (str(index) in selected):
-                    image = 'selected'
-                else:
-                    image = starting_matrix[index]
-                self.response.out.write(self.form_button % (index, image))
+                self.response.out.write(self.form_button % index)
             if (j != 49):
                 self.response.out.write('<br>')
         self.response.out.write(self.form_table_footer)
-        if (len(selected) > 0):
-            plant_codes_list = []
-            for i in range(1,6):
-                plant_code = self.request.get('plant_code_%s' % i)
-                if (plant_code != '-1'):
-                    plant_codes_list.append(plant_code)
-            plant_codes_count = len(plant_codes_list)
-            self.response.out.write(self.form_cell_value_selector_header)
-            for i in range(0,plant_codes_count):
-                self.response.out.write(self.form_cell_value_selector_option %
-                                        (i+1, info.common_names[int(plant_codes_list[i])]))
-            self.response.out.write(self.form_cell_value_selector_footer)
-            self.response.out.write(self.form_assign_cells_button)
-            if (len(selected) == 2):
-                self.response.out.write(self.form_assign_area_button)
-        else:
-            self.response.out.write('<br>')
+        plant_codes_list = []
+        for i in range(1,6):
+            plant_code = self.request.get('plant_code_%s' % i)
+            if (plant_code != '-1'):
+                plant_codes_list.append(plant_code)
+        plant_codes_count = len(plant_codes_list)
+        self.response.out.write(self.form_cell_value_selector_header)
+        for i in range(0,plant_codes_count):
+            self.response.out.write(self.form_cell_value_selector_option %
+                                    (i+1, info.common_names[int(plant_codes_list[i])]))
+        self.response.out.write(self.form_cell_value_selector_footer)
+        self.response.out.write(self.form_assign_cells_button)
+        self.response.out.write(self.form_assign_area_button)
         self.response.out.write(self.form_submit_button)
-        #Pass the list of selected cells, the current starting matrix, and ongoing disturbance value.
-        self.response.out.write(self.form_active_hidden_fields % (
-            ','.join(selected),''.join(starting_matrix)))
-        #Pass the values from previous form pages
-        self.response.out.write(self.form_passive_hidden_fields % (
-            self.request.get('water_level'),
-            self.request.get('light_level'),
-            self.request.get('temperature_level'),
-            self.request.get('disturbance_level')))
+        self.response.out.write(self.form_passive_hidden_fields %
+                                (self.request.get('water_level'),
+                                 self.request.get('light_level'),
+                                 self.request.get('temperature_level'),
+                                 self.request.get('disturbance_level')))
+        self.response.out.write(self.form_active_hidden_fields)
         for x in range(1, 6):
             self.response.out.write(self.form_plant_code_hidden_field %
                                     (x, self.request.get('plant_code_%s' % x)))
         self.response.out.write(self.form_footer)
-        self.response.out.write(page.footer)
+        self.response.out.write(self.footer)
 
-    def get_area_list_from_corners(self, corner1, corner2):
-        y1 = corner1 / 50
-        x1 = corner1 % 50
-        y2 = corner2 / 50
-        x2 = corner2 % 50
-        lower_x = x1
-        upper_x = x2
-        lower_y = y1
-        upper_y = y2
-        if (x1 >= x2):
-            lower_x = x2
-            upper_x = x1
-        if (y1 >= y2):
-            lower_y = y2
-            upper_y = y1
-        area_list = []
-        for y in range(lower_y, upper_y + 1):
-            for x in range(lower_x, upper_x + 1):
-                area_list.append(y * 50 + x)
-        return area_list
+
+    javascript = """
+        <script type="text/javascript">
+
+        var m_matrix = [];
+        for (var cell=0; cell<2500; cell++)
+            m_matrix[cell] = "R";
+        var m_selected = [];
+
+        function Load()
+        {
+            document.getElementById("starting_matrix").value = m_matrix.join("");
+        }
+
+        function ChangeButton(button)
+        {
+            if (button.getAttribute("src") != "/images/selectedbutton.png")
+            {
+                button.src = "/images/selectedbutton.png";
+                m_selected.push(button.getAttribute("id"));
+            }
+            else
+            {
+                button.src = "/images/" + m_matrix[button.getAttribute("id")] + "button.png";
+                var newindex = m_selected.indexOf(button.getAttribute("id"));
+                m_selected.splice(newindex, 1);
+            }
+            var selected_cells = m_selected.length;
+            if (selected_cells > 0)
+            {
+                document.getElementById("assign_cells").disabled = "";
+                if (selected_cells == 2)
+                {
+                    document.getElementById("assign_area").disabled = "";
+                }
+                else
+                {
+                    document.getElementById("assign_area").disabled = "disabled";
+                }
+            }
+            else
+            {
+                document.getElementById("assign_cells").disabled = "disabled";
+            }
+        }
+
+        function ApplyValueToCells()
+        {
+            var cell_value = document.getElementById("cell_value").value;
+            for (var i=0; i<m_selected.length; i++)
+            {
+                m_matrix[m_selected[i]] = cell_value;
+                document.getElementById(m_selected[i]).src = "/images/" + cell_value + "button.png";
+            }
+            m_selected = [];
+            document.getElementById('starting_matrix').value = m_matrix.join("");
+        }
+
+        function ApplyValueToArea()
+        {
+            var cell_value = document.getElementById("cell_value").value;
+            var corner1 = m_selected[0];
+            var corner2 = m_selected[1];
+            var y1 = Math.floor(corner1 / 50);
+            var x1 = corner1 % 50;
+            var y2 = Math.floor(corner2 / 50);
+            var x2 = corner2 % 50;
+            var lower_x = x1;
+            var upper_x = x2;
+            var lower_y = y1;
+            var upper_y = y2;
+            if (x1 >= x2)
+            {
+                lower_x = x2
+                upper_x = x1
+            }
+            if (y1 >= y2)
+            {
+                lower_y = y2
+                upper_y = y1
+            }
+            for (var y=lower_y; y<=upper_y; y++)
+            {
+                for (var x=lower_x; x<=upper_x; x++)
+                {
+                    var i = y * 50 + x;
+                    m_matrix[i] = cell_value;
+                    document.getElementById(i.toString()).src = "/images/" + cell_value + "button.png";
+                }
+            }
+            m_selected = [];
+            document.getElementById('starting_matrix').value = m_matrix.join("");
+        }
+        </script>
+        """
+
+    header = '<html><head><title>%s</title>%s</head><body onload="Load()">'
+
+    form_instructions = """
+        <h3>Initial plant distribution:</h3>
+        <b>Click on the map to select one or more cells to set the starting status.</b>
+        """
+
+    form_header = '<form enctype="multipart/form-data" action="/newparameters" method="post">'
+
+    form_table_header = '<table background="/images/Terrain0_map.jpg"><tbody><td>'
+
+    form_button = '<img id="%s" src="/images/Rbutton.png" onclick="ChangeButton(this); return false;" style="width: 10px; height=10px;">'
+
+    form_table_footer = '</td></tbody></table>'
+
+    form_cell_value_selector_header = """
+        <b>Cell value:</b>
+        <select id="cell_value">
+            <option value = "R">Random plant type</option>
+            <option value = "N">Permanent disturbance</option>
+            <option value = "0">Gap (temporary)</option>
+        """
+
+    form_cell_value_selector_option = """
+            <option value = "%s">%s</option>
+        """
+
+    form_cell_value_selector_footer = """
+        </select>
+        """
+
+    form_assign_cells_button = """
+        <input type="button" id="assign_cells" disabled="disabled" onclick="ApplyValueToCells(); return false;" value="Apply cell value to cells">
+        """
+
+    form_assign_area_button = """
+        <input type="button" id="assign_area" disabled="disabled" onclick="ApplyValueToArea(); return false;" value="Apply cell value to area">
+        """
+
+    form_submit_button = """
+        <br><br><input type="submit" name="submit_value" value="Submit parameters">
+        """
+
+    form_passive_hidden_fields = """
+        <input type="hidden" name="water_level" value="%s">
+        <input type="hidden" name="light_level" value="%s">
+        <input type="hidden" name="temperature_level" value="%s">
+        <input type="hidden" name="disturbance_level" value="%s">
+        """
+
+    form_active_hidden_fields = """
+        <input type="hidden" id="starting_matrix" name="starting_matrix" value="">
+        """
+
+    form_plant_code_hidden_field = """
+        <input type="hidden" name="plant_code_%s" value="%s">
+        """
+
+    form_footer = '</form>'
+
+    footer = '</body></html>'
+
+
+class StoreNewParameters(webapp.RequestHandler):
+    def post(self):
+        page = HtmlPage()
+        self.response.out.write(page.header % 'Simulation parameters form')
+        self.id = str(int(time.time() * 1000.0))
+        self.store_record()
+        temp_starting_matrix = self.request.get('starting_matrix')
+        self.response.out.write(self.success_output_all_parameters % self.id)
+        self.response.out.write(page.footer)
 
     def store_record(self):
         # Get a db record instance to hold the form data
@@ -516,65 +611,6 @@ class ParametersFormPageTwo(webapp.RequestHandler):
             </blockquote>
         </p>
         """
-
-    form_header = '<form enctype="multipart/form-data" action="/parametersform2" method="post">'
-
-    form_starting_matrix_map_label = """
-        <h3>Initial plant distribution:</h3>
-        <b>Click on the map to select one or more cells to set the starting status.</b>
-        """
-
-    form_table_header = '<table background="/images/Terrain0_map.jpg"><tbody><td>'
-
-    form_button = '<input type="image" name="aaa%s" src="/images/%sbutton.png" style="width: 10px; height=10px;">'
-
-    form_table_footer = '</td></tbody></table>'
-
-    form_cell_value_selector_header = """
-        <b>Cell value:</b>
-        <select name="cell_value">
-            <option value = "R">Random plant type</option>
-            <option value = "N">Permanent disturbance</option>
-            <option value = "0">Gap (temporary)</option>
-        """
-
-    form_cell_value_selector_option = """
-            <option value = "%s">%s</option>
-        """
-
-    form_cell_value_selector_footer = """
-        </select>
-        """
-
-    form_assign_cells_button = """
-        <input type="submit" name="submit_value" value="Apply cell value to cells">
-        """
-
-    form_assign_area_button = """
-        <input type="submit" name="submit_value" value="Apply cell value to area">
-        """
-
-    form_submit_button = """
-        <br><br><input type="submit" name="submit_value" value="Submit parameters">
-        """
-
-    form_active_hidden_fields = """
-        <input type="hidden" name="selected" value="%s">
-        <input type="hidden" name="starting_matrix" value="%s">
-        """
-
-    form_passive_hidden_fields = """
-        <input type="hidden" name="water_level" value="%s">
-        <input type="hidden" name="light_level" value="%s">
-        <input type="hidden" name="temperature_level" value="%s">
-        <input type="hidden" name="disturbance_level" value="%s">
-        """
-
-    form_plant_code_hidden_field = """
-        <input type="hidden" name="plant_code_%s" value="%s">
-        """
-
-    form_footer = '</form>'
 
 
 class PlantPicturesPage(webapp.RequestHandler):
@@ -878,6 +914,7 @@ class SendCrossDomain(webapp.RequestHandler):
 application = webapp.WSGIApplication([
     ('/', ParametersFormPageOne),
     ('/parametersform2', ParametersFormPageTwo),
+    ('/newparameters', StoreNewParameters),
     ('/data', GetParameters),
     ('/requestplot', RequestPlot),
     ('/plants', PlantPicturesPage),
