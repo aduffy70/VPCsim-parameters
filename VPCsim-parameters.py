@@ -605,11 +605,7 @@ class StoreNewParameters(webapp.RequestHandler):
             To run the simulation use the following simulation code.<br>
             <b>Write it down</b> - you will need it when you report your results.
         </p>
-        <p>
-            <blockquote style="font-size: larger;">
-                <b>%s</b>
-            </blockquote>
-        </p>
+                <h2>%s</h2>
         """
 
 
