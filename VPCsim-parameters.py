@@ -75,140 +75,140 @@ class SpeciesInfo():
 
     #These levels all need to correspond to the values used in the Unity module.
     #The values shown here are only used for display purposes.
-    water_levels = ['N',
-                    'N',
-                    'N',
-                    'N',
-                    'N',
-                    'N',
-                    'N',
-                    'H',
-                    'N',
-                    'N',
-                    'N',
-                    'N',
-                    'N',
-                    'N']
+    water_levels = ['High',
+                    'Normal',
+                    'Normal',
+                    'Low',
+                    'Normal',
+                    'Low',
+                    'Normal',
+                    'Normal',
+                    'High',
+                    'Normal',
+                    'Normal',
+                    'Low',
+                    'Normal',
+                    'High']
 
-    light_levels = ['N',
-                    'N',
-                    'N',
-                    'N',
-                    'N',
-                    'N',
-                    'N',
-                    'N',
-                    'N',
-                    'N',
-                    'N',
-                    'N',
-                    'N',
-                    'N']
+    light_levels = ['Normal',
+                    'Normal',
+                    'Normal',
+                    'Normal',
+                    'Low',
+                    'High',
+                    'High',
+                    'Low',
+                    'Normal',
+                    'Normal',
+                    'Normal',
+                    'Normal',
+                    'Normal',
+                    'Normal']
 
-    temperature_levels = ['N',
-                          'N',
-                          'N',
-                          'N',
-                          'N',
-                          'N',
-                          'N',
-                          'N',
-                          'N',
-                          'N',
-                          'N',
-                          'N',
-                          'N',
-                          'N']
+    temperature_levels = ['Low',
+                          'Normal',
+                          'Normal',
+                          'Normal',
+                          'Normal',
+                          'Normal',
+                          'Low',
+                          'Normal',
+                          'Normal',
+                          'Normal',
+                          'Normal',
+                          'Normal',
+                          'Normal',
+                          'Normal']
 
-    altitudes = [   'N',
-                    'N',
-                    'N',
-                    'N',
-                    'N',
-                    'N',
-                    'N',
-                    'N',
-                    'N',
-                    'N',
-                    'N',
-                    'N',
-                    'N',
-                    'N']
+    altitudes = [   'Low',
+                    'Mid',
+                    'Mid',
+                    'Mid',
+                    'High',
+                    'Mid',
+                    'Mid',
+                    'Mid',
+                    'Mid',
+                    'Mid',
+                    'High',
+                    'Mid',
+                    'Low',
+                    'Mid']
 
-    lifespans = [   'M',
-                    'M',
-                    'M',
-                    'M',
-                    'M',
-                    'M',
-                    'M',
-                    'M',
-                    'M',
-                    'M',
-                    'M',
-                    'M',
-                    'M',
-                    'M']
+    lifespans = [   'Long (25 years)',
+                    'Long (25 years)',
+                    'Very Short (3 years)',
+                    'Very Long (100 years)',
+                    'Short (10 years)',
+                    'Very Long (100 years)',
+                    'Short (10 years)',
+                    'Very Short (3 years)',
+                    'Very Short (3 years)',
+                    'Long (25 years)',
+                    'Short (10 years)',
+                    'Very Long (100 years)',
+                    'Long (25 years)',
+                    'Short (10 years)']
 
-    colonizing_levels = [   'N',
-                            'N',
-                            'Y',
-                            'N',
-                            'N',
-                            'N',
-                            'N',
-                            'N',
-                            'N',
-                            'N',
-                            'N',
-                            'N',
-                            'N',
-                            'N']
+    colonizing_levels = [   'Medium',
+                            'Medium',
+                            'High',
+                            'Low',
+                            'Medium',
+                            'Low',
+                            'Medium',
+                            'High',
+                            'High',
+                            'Medium',
+                            'Medium',
+                            'Low',
+                            'Medium',
+                            'Medium']
 
-    replaces_lists = [  'A, list, of, plants',
-                        'A, list, of, plants',
-                        'A, list, of, plants',
-                        'A, list, of, plants',
-                        'A, list, of, plants',
-                        'A, list, of, plants',
-                        'A, list, of, plants',
-                        'A, list, of, plants',
-                        'A, list, of, plants',
-                        'A, list, of, plants',
-                        'A, list, of, plants',
-                        'A, list, of, plants',
-                        'A, list, of, plants',
-                        'A, list, of, plants']
+    replaces_lists = [  '',
+                        '',
+                        '',
+                        '',
+                        '',
+                        '',
+                        '',
+                        '',
+                        '',
+                        '',
+                        '',
+                        '',
+                        '',
+                        '']
 
-    replaced_by_lists = ['A, list, of, plants',
-                         'A, list, of, plants',
-                         'A, list, of, plants',
-                         'A, list, of, plants',
-                         'A, list, of, plants',
-                         'A, list, of, plants',
-                         'A, list, of, plants',
-                         'A, list, of, plants',
-                         'A, list, of, plants',
-                         'A, list, of, plants',
-                         'A, list, of, plants',
-                         'A, list, of, plants',
-                         'A, list, of, plants',
-                         'A, list, of, plants']
+    replaced_by_lists = ['',
+                         '',
+                         '',
+                         '',
+                         '',
+                         '',
+                         '',
+                         '',
+                         '',
+                         '',
+                         '',
+                         '',
+                         '',
+                         '']
 
-    other_notes = [ 'Some, relevant, facts',
-                    'Some, relevant, facts',
+    other_notes = [ '',
+                    '',
                     'Invasive species',
-                    'Some, relevant, facts',
-                    'Some, relevant, facts',
-                    'Some, relevant, facts',
-                    'Some, relevant, facts',
-                    'Some, relevant, facts',
-                    'Some, relevant, facts',
-                    'Some, relevant, facts',
-                    'Some, relevant, facts',
-                    'Some, relevant, facts',
-                    'Some, relevant, facts',
-                    'Some, relevant, facts']
+                    '',
+                    '',
+                    '',
+                    '',
+                    '',
+                    '',
+                    '',
+                    '',
+                    '',
+                    '',
+                    '']
 
 class MeadowRecordObject(db.Model):
     """
@@ -624,8 +624,7 @@ class PlantPicturesPage(webapp.RequestHandler):
                                      info.common_names[i], info.lifespans[i],
                                      info.water_levels[i], info.light_levels[i],
                                      info.temperature_levels[i], info.altitudes[i],
-                                     info.colonizing_levels[i], info.replaces_lists[i],
-                                     info.replaced_by_lists[i], info.other_notes[i]))
+                                     info.colonizing_levels[i], info.other_notes[i]))
         self.response.out.write(page.footer)
 
     plant_info_display = """
@@ -636,14 +635,13 @@ class PlantPicturesPage(webapp.RequestHandler):
                     <img src="/images/%s.png" height="250" width="300"/>
                 </td>
                 <td>
-                    <b>Lifespan:</b> %s<br><br>
-                    <b>Water:</b> %s<br>
-                    <b>Light:</b> %s<br>
-                    <b>Temp:</b> %s<br>
-                    <b>Altitude:</b> %s<br><br>
-                    <b>Colonizer:</b> %s<br>
-                    <b>Outcompetes:</b> %s<br>
-                    <b>Outcompeted by:</b> %s<br><br>
+                    <b>Maximum Lifespan:</b> %s<br>
+                    <b>Optimal Environment:</b><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;<b>Water:</b> %s<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;<b>Light:</b> %s<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;<b>Temp:</b> %s<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;<b>Altitude:</b> %s<br>
+                    <b>Colonizing ability:</b> %s<br>
                     <b>Other notes:</b> %s
                 </td>
             </tr></tbody></table>
