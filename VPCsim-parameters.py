@@ -120,7 +120,7 @@ class SpeciesInfo():
                           'Normal',
                           'Normal']
 
-    altitudes = [   'Low',
+    elevations = [   'Low',
                     'Mid',
                     'Mid',
                     'Mid',
@@ -623,7 +623,7 @@ class PlantPicturesPage(webapp.RequestHandler):
                                     (info.common_names[i], info.latin_binomials[i],
                                      info.common_names[i], info.lifespans[i],
                                      info.water_levels[i], info.light_levels[i],
-                                     info.temperature_levels[i], info.altitudes[i],
+                                     info.temperature_levels[i], info.elevations[i],
                                      info.colonizing_levels[i], info.other_notes[i]))
         self.response.out.write(page.footer)
 
@@ -640,7 +640,7 @@ class PlantPicturesPage(webapp.RequestHandler):
                     &nbsp;&nbsp;&nbsp;&nbsp;<b>Water:</b> %s<br>
                     &nbsp;&nbsp;&nbsp;&nbsp;<b>Light:</b> %s<br>
                     &nbsp;&nbsp;&nbsp;&nbsp;<b>Temp:</b> %s<br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;<b>Altitude:</b> %s<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;<b>Elevation:</b> %s<br>
                     <b>Colonizing ability:</b> %s<br>
                     <b>Other notes:</b> %s
                 </td>
