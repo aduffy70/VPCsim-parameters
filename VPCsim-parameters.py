@@ -558,7 +558,7 @@ class ParametersFormPageTwo(webapp.RequestHandler):
     header = '<html><head><title>%s</title>%s</head><body onload="Load()">'
 
     form_instructions = """
-        <h3>Initial plant distribution:</h3>
+        <h3>Year 0 plant distribution:</h3>
         <b><a href="/map-help" target="_blank">Need help?</a></b>
         """
 
