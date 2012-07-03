@@ -559,7 +559,7 @@ class ParametersFormPageTwo(webapp.RequestHandler):
 
     form_instructions = """
         <h3>Initial plant distribution:</h3>
-        <b>Click on the map to select one or more cells to set the starting status.</b>
+        <b><a href="/map-help" target="_blank">Need help?</a></b>
         """
 
     form_header = '<form enctype="multipart/form-data" action="/newparameters" method="post">'
@@ -595,7 +595,7 @@ class ParametersFormPageTwo(webapp.RequestHandler):
         """
 
     form_submit_button = """
-        <br><br><input type="submit" name="submit_value" value="Submit parameters">
+        <br><br><input type="submit" name="submit_value" value="Continue...">
         """
 
     form_passive_hidden_fields = """
@@ -968,6 +968,35 @@ class SendCrossDomain(webapp.RequestHandler):
         self.response.headers['Content-Type'] = 'text/xml'
         self.response.out.write(crossdomain)
 
+class ShowMapHelpPage(webapp.RequestHandler):
+    """
+    Displays instructions for setting the starting plant distribution.
+    """
+
+    def get(self):
+        page = HtmlPage()
+        self.response.out.write(page.header % 'Map Instructions')
+        self.response.out.write(self.instructions)
+        self.response.out.write(page.footer)
+
+    instructions = """
+        <h3>Using the map to set the starting plant distribution</h3>
+        <b>To put a specific plant (or gap) at specific locations:</b>
+        <ol>
+            <li>Click on one or more locations on the map.</li>
+            <li>Select the plant type (or gap) from the drop-down menu.</li>
+            <li>Click the button to <i>Apply cell value to cells</i>.</li>
+            <li>Repeat 1-3 to put other plant types (or gaps) in other locations.</li>
+        </ol>
+        <b>To put a specific plant (or gap) in a rectangular area:</b>
+        <ol>
+            <li>Click on exactly two locations on the map to define the corners of a rectangular area.</li>
+            <li>Select the plant type (or gap) from the drop-down menu.</li>
+            <li>Click the button to <i>Apply cell value to area</i>.</li>
+            <li>Repeat 1-3 to put other plant types (or gaps) in other areas.</li>
+        </ol>
+        <b>Note:</b> By default, any locations you leave blank will be planted at random.
+        """
 
 # url to class mapping
 application = webapp.WSGIApplication([
@@ -978,6 +1007,7 @@ application = webapp.WSGIApplication([
     ('/requestplot', RequestPlot),
     ('/plants', PlantPicturesPage),
     ('/show', ShowParametersPage),
+    ('/map-help', ShowMapHelpPage),
     ('/crossdomain.xml', SendCrossDomain)], debug=True)
 
 def main():
