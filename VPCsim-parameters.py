@@ -259,6 +259,7 @@ class ParametersFormPageOne(webapp.RequestHandler):
                                      default_selection[2], info.common_names[9], info.common_names[10],
                                      default_selection[3], info.common_names[11], info.common_names[12],
                                      default_selection[4], info.common_names[13], link_option))
+        self.response.out.write(self.form_starting_distribution)
         self.response.out.write(self.form_submit_button)
         self.response.out.write(page.footer)
 
@@ -341,7 +342,21 @@ class ParametersFormPageOne(webapp.RequestHandler):
 
     form_plant_examples_link = '<a href="/plants" target="_blank">View examples</a>'
 
-    form_submit_button = '</p><input type="submit" name="next" value="Continue..."></form>'
+
+    form_starting_distribution = """
+        </p>
+        <p>
+            <b>Select how the plants should be distributed in Year 0.</b>
+        <p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;
+            <select name="starting_distribution">
+                <option value = "0">Place plants randomly</option>
+                <option value = "1">Let me choose</option>
+            </select>
+        </p><br>
+        """
+
+    form_submit_button = '<input type="submit" name="next" value="Continue..."></form>'
 
 
 class ParametersFormPageTwo(webapp.RequestHandler):
@@ -350,9 +365,23 @@ class ParametersFormPageTwo(webapp.RequestHandler):
     Controls the starting community.
     """
     def post(self):
-        self.response.out.write(self.header % ('Simulation parameters form', self.javascript))
-        self.draw_form()
-        self.response.out.write(self.footer)
+        is_nonrandom_distribution = self.request.get('starting_distribution')
+        if (is_nonrandom_distribution == '1'):
+            #They want to choose the starting plant distribution
+            self.response.out.write(self.header % ('Simulation parameters form', self.javascript))
+            self.draw_form()
+            self.response.out.write(self.footer)
+        else:
+            #They want a random distribution
+            #This is poorly coded.  I'm just duplicating most of the StoreNewParametersClass!
+            page = HtmlPage()
+            self.response.out.write(page.header % 'Simulation parameters form')
+            self.id = str(int(time.time() * 1000.0))
+            self.store_record()
+            #temp_starting_matrix = self.request.get('starting_matrix')
+            self.response.out.write(self.success_output_all_parameters % self.id)
+            self.response.out.write(page.footer)
+
 
     def draw_form(self):
         #Set up the default starting matrix with all Rs
@@ -392,6 +421,44 @@ class ParametersFormPageTwo(webapp.RequestHandler):
                                     (x, self.request.get('plant_code_%s' % x)))
         self.response.out.write(self.form_footer)
         self.response.out.write(self.footer)
+
+    def store_record(self):
+        # Get a db record instance to hold the form data
+        record = MeadowRecordObject()
+        # Store a timestamp as the record id
+        record.id = self.id
+        # Store the water_level, light_level, and temperature_level,
+        # disturbance_level and list of plant_species.
+        record.water_level = int(self.request.get('water_level'))
+        record.light_level = int(self.request.get('light_level'))
+        record.temperature_level = int(self.request.get('temperature_level'))
+        record.disturbance_level = int(self.request.get('disturbance_level'))
+        plant_codes_list = []
+        for i in range(1,6):
+            plant_code = self.request.get('plant_code_%s' % i)
+            if (plant_code != '-1'):
+                plant_codes_list.append(plant_code)
+        record.plant_types = ''
+        if (len(plant_codes_list) != 0):
+            record.plant_types = ','.join(plant_codes_list)
+        # Store a community matrix of all 'R's
+        record.starting_matrix = ''
+        for i in range(2500):
+            record.starting_matrix += 'R'
+        record.put()
+
+    success_output_all_parameters = """
+        <p>
+            <span style="font-size: larger;">
+                The simulation parameters are ready to load.
+            </span>
+        </p>
+        <p>
+            To run the simulation use the following simulation code.<br>
+            <b>Write it down</b> - you will need it when you report your results.
+        </p>
+                <h2>%s</h2>
+        """
 
 
     javascript = """
@@ -558,7 +625,7 @@ class StoreNewParameters(webapp.RequestHandler):
         self.response.out.write(page.header % 'Simulation parameters form')
         self.id = str(int(time.time() * 1000.0))
         self.store_record()
-        temp_starting_matrix = self.request.get('starting_matrix')
+        #temp_starting_matrix = self.request.get('starting_matrix')
         self.response.out.write(self.success_output_all_parameters % self.id)
         self.response.out.write(page.footer)
 
