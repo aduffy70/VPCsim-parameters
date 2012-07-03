@@ -378,7 +378,6 @@ class ParametersFormPageTwo(webapp.RequestHandler):
             self.response.out.write(page.header % 'Simulation parameters form')
             self.id = str(int(time.time() * 1000.0))
             self.store_record()
-            #temp_starting_matrix = self.request.get('starting_matrix')
             self.response.out.write(self.success_output_all_parameters % self.id)
             self.response.out.write(page.footer)
 
@@ -625,7 +624,6 @@ class StoreNewParameters(webapp.RequestHandler):
         self.response.out.write(page.header % 'Simulation parameters form')
         self.id = str(int(time.time() * 1000.0))
         self.store_record()
-        #temp_starting_matrix = self.request.get('starting_matrix')
         self.response.out.write(self.success_output_all_parameters % self.id)
         self.response.out.write(page.footer)
 
