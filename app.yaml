@@ -1,7 +1,8 @@
 application: vpcsim
-version: 1
+version: 2
 runtime: python
-api_version: 1
+api_version: 2
+threadsafe: false
 
 handlers:
 - url: /images
@@ -13,5 +14,3 @@ handlers:
 
 - url: /.*
   script: VPCsim-parameters.py
-
-
