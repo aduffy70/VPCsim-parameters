@@ -35,7 +35,7 @@ class HtmlPage():
     """
     Class containing basic html page layout.
     """
-    header = '<html><head><title>%s</title></head><body>'
+    header = '<html><head><title>%s v2</title></head><body>'
 
     footer = '</body></html>'
 
