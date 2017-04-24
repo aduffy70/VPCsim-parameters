@@ -25,8 +25,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 """
 
-from google.appengine.ext import webapp2
-from google.appengine.ext.webapp2.util import run_wsgi_app
+import webapp2
+from google.appengine.ext.webapp.util import run_wsgi_app
 from google.appengine.ext import db
 import time
 
