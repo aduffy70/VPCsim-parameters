@@ -25,8 +25,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 """
 
-from google.appengine.ext import webapp
-from google.appengine.ext.webapp.util import run_wsgi_app
+from google.appengine.ext import webapp2
+from google.appengine.ext.webapp2.util import run_wsgi_app
 from google.appengine.ext import db
 import time
 
@@ -231,7 +231,7 @@ class MeadowRecordObject(db.Model):
     starting_matrix = db.TextProperty()
 
 
-class ParametersFormPageOne(webapp.RequestHandler):
+class ParametersFormPageOne(webapp2.RequestHandler):
     """
     First page of the two page community parameters form.
     Accessed by the user by url or hyperlink. Controls environment
@@ -359,7 +359,7 @@ class ParametersFormPageOne(webapp.RequestHandler):
     form_submit_button = '<input type="submit" name="next" value="Continue..."></form>'
 
 
-class ParametersFormPageTwo(webapp.RequestHandler):
+class ParametersFormPageTwo(webapp2.RequestHandler):
     """
     Second page of the two page community parameters form.
     Controls the starting community.
@@ -618,7 +618,7 @@ class ParametersFormPageTwo(webapp.RequestHandler):
     footer = '</body></html>'
 
 
-class StoreNewParameters(webapp.RequestHandler):
+class StoreNewParameters(webapp2.RequestHandler):
     def post(self):
         page = HtmlPage()
         self.response.out.write(page.header % 'Simulation parameters form')
@@ -674,7 +674,7 @@ class StoreNewParameters(webapp.RequestHandler):
         """
 
 
-class PlantPicturesPage(webapp.RequestHandler):
+class PlantPicturesPage(webapp2.RequestHandler):
     """
     Displays a page with photos of the different plant types in a new browser window.
     Accessed through links on the SetupMatrix page form.
@@ -714,7 +714,7 @@ class PlantPicturesPage(webapp.RequestHandler):
         """
 
 
-class ShowParametersPage(webapp.RequestHandler):
+class ShowParametersPage(webapp2.RequestHandler):
     """
     Accepts a simulation ID and returns a summary of the parameters for that ID.
     """
@@ -847,7 +847,7 @@ class ShowParametersPage(webapp.RequestHandler):
         """
 
 
-class GetParameters(webapp.RequestHandler):
+class GetParameters(webapp2.RequestHandler):
     """
     Returns the community record with a particular timestamp as XML.
     Accessed by the vMeadow opensim module.
@@ -861,7 +861,7 @@ class GetParameters(webapp.RequestHandler):
             self.response.out.write(data[0].to_xml())
 
 
-class RequestPlot(webapp.RequestHandler):
+class RequestPlot(webapp2.RequestHandler):
     """
     Accepts data for plotting and returns an interactive dygraph-based plot.
     """
@@ -955,7 +955,7 @@ class RequestPlot(webapp.RequestHandler):
                                 '% of total biomass'))
 
 
-class SendCrossDomain(webapp.RequestHandler):
+class SendCrossDomain(webapp2.RequestHandler):
     """
     Responds to crossdomain permission requests.
     """
@@ -968,7 +968,7 @@ class SendCrossDomain(webapp.RequestHandler):
         self.response.headers['Content-Type'] = 'text/xml'
         self.response.out.write(crossdomain)
 
-class ShowMapHelpPage(webapp.RequestHandler):
+class ShowMapHelpPage(webapp2.RequestHandler):
     """
     Displays instructions for setting the starting plant distribution.
     """
@@ -999,7 +999,7 @@ class ShowMapHelpPage(webapp.RequestHandler):
         """
 
 # url to class mapping
-application = webapp.WSGIApplication([
+application = webapp2.WSGIApplication([
     ('/', ParametersFormPageOne),
     ('/parametersform2', ParametersFormPageTwo),
     ('/newparameters', StoreNewParameters),
