@@ -1,6 +1,6 @@
 application: vpcsim
 version: 2
-runtime: python
+runtime: python27
 api_version: 2
 threadsafe: false
 
@@ -14,3 +14,7 @@ handlers:
 
 - url: /.*
   script: VPCsim-parameters.py
+
+libraries:
+- name: webapp2
+  version: "2.5.2"
